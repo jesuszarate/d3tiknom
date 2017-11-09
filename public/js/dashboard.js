@@ -6,15 +6,15 @@ class Dashboard {
         this.margin = {top: 10, right: 20, bottom: 30, left: 50};
         this.divDashboard = d3.select("#dashboard").classed("fullView", true);
 
-        //fetch the svg bounds
-        this.svgBounds = this.divDashboard.node().getBoundingClientRect();
-        this.svgWidth = this.svgBounds.width - this.margin.left - this.margin.right;
-        this.svgHeight = 100;
-
-        //add the svg to the div
-        this.svg = this.divDashboard.append("svg")
-            .attr("width", this.svgWidth)
-            .attr("height", this.svgHeight);
+        // //fetch the svg bounds
+        // this.svgBounds = this.divDashboard.node().getBoundingClientRect();
+        // this.svgWidth = this.svgBounds.width - this.margin.left - this.margin.right;
+        // this.svgHeight = 100;
+        //
+        // //add the svg to the div
+        // this.svg = this.divDashboard.append("svg")
+        //     .attr("width", this.svgWidth)
+        //     .attr("height", this.svgHeight);
 
     }
 
