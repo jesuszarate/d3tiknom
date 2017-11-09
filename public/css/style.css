@@ -184,4 +184,6 @@ h3{
     font-size: 32px;
 }
 
-
+ul.noBullet {
+    list-style-type: none;
+}
