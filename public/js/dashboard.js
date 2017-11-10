@@ -56,9 +56,7 @@ class Dashboard {
                     k.forEach(function (d) {
                         ref.listData.push({"key": d["key"], "children": d["children"], "show": false})
                     });
-
                 });
-
             });
         });
 
@@ -99,7 +97,7 @@ class Dashboard {
             data.forEach(function (child) {
 
                 if (child.key === key) {
-                    child.show = true;
+                    child.show = !child.show;
                     return;
                 }
 
