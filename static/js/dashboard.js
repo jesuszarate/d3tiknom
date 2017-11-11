@@ -2,30 +2,18 @@ class Dashboard {
     constructor(data) {
         this.data = data;
 
-        // Initializes the svg elements required for this chart
+        // initializes the svg elements required for this chart
         this.margin = {top: 10, right: 20, bottom: 30, left: 50};
-        this.divDashboard = d3.select("#dashboard").classed("fullView", true);
-
+        this.divDashboard = d3.select("#dashboard");
         this.listData = []
-        // //fetch the svg bounds
-        // this.svgBounds = this.divDashboard.node().getBoundingClientRect();
-        // this.svgWidth = this.svgBounds.width - this.margin.left - this.margin.right;
-        // this.svgHeight = 100;
-        //
-        // //add the svg to the div
-        // this.svg = this.divDashboard.append("svg")
-        //     .attr("width", this.svgWidth)
-        //     .attr("height", this.svgHeight);
-
     }
 
     update() {
-
         let ref = this;
         this.divDashboard.selectAll("ul").remove();
 
         let lu = this.divDashboard.append("ul")
-            .attr("class", "noBullet");
+            .attr("class", "no-bullet");
 
         let li = lu.selectAll("li")
             .data([this.data]);
@@ -33,7 +21,6 @@ class Dashboard {
         li.enter()
             .append("li")
             .text(function (d) {
-                //return Object.keys(d)[0];
                 return d[0].key;
             })
             .attr("id", function (d) {
@@ -52,7 +39,11 @@ class Dashboard {
             k.forEach(function (d) {
                 d["children"].forEach(function (k) {
                     k.forEach(function (d) {
-                        ref.listData.push({"key": d["key"], "children": d["children"], "show": false})
+                        ref.listData.push({
+                            "key": d["key"],
+                            "children": d["children"],
+                            "show": false
+                        })
                     });
                 });
             });
@@ -66,7 +57,6 @@ class Dashboard {
     }
 
     addElements(parentDOM, data) {
-
         let ref = this;
         update(ref, parentDOM, data);
 
@@ -86,7 +76,7 @@ class Dashboard {
                         //parentDom.selectAll("li").remove();
                         ref.clearList();
                         parentDom = ref.divDashboard.append("ul")
-                            .attr("class", "noBullet");
+                            .attr("class", "no-bullet");
                         ref.addElements(parentDom, ref.listData);
                     });
                 // //if children then make ul
@@ -98,9 +88,7 @@ class Dashboard {
         }
 
         function updateShowList(key, data) {
-
             data.forEach(function (child) {
-
                 if (child.key === key) {
                     child.show = !child.show;
                     return;
@@ -111,25 +99,25 @@ class Dashboard {
                 }
 
                 if (child.hasOwnProperty('target') && child.target === key) {
-                    if (child.datapoints.length > 0 && child.datapoints[0][0] != null) {
+                    if (child.datapoints.length > 0 &&
+                        child.datapoints[0][0] != null) {
                         ref.buildTimePlot(child);
                     }
                 }
             });
-
         }
     }
 
-
-
     buildTimePlot(data) {
         let margin = {top: 20, left: 70, bottom: 70, right: 20};
-        d3.select("#barchartSvg").attr("transform", "translate(" +
+        d3.select("#barchart-svg").attr("transform", "translate(" +
             margin.left + "," + margin.top + ")");
 
-        let barchartSvg = d3.select("#barChart");
-        let chartWidth = +barchartSvg.attr("width") - margin.left - margin.right;
-        let chartHeight = +barchartSvg.attr("height") - margin.top - margin.bottom;
+        let barchartSvg = d3.select("#bar-chart");
+        let chartWidth = +barchartSvg.attr("width") - margin.left -
+            margin.right;
+        let chartHeight = +barchartSvg.attr("height") - margin.top -
+            margin.bottom;
 
         // create the x and y scales; make sure to leave room for the axes
         let xScale = d3.scaleBand()
@@ -169,6 +157,5 @@ class Dashboard {
             .attr("height", function (d) {
               return chartHeight - yScale(d[0]);
             });
-
     }
 }
