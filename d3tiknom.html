@@ -13,26 +13,20 @@
     <link href="https://fonts.googleapis.com/css?family=Arvo" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
 </head>
-
 <body>
 
 <h1>d3tiknom</h1>
-<p class="info">Name: Sam Olds; E-Mail: Your E-Mail; UID: Your UID</p>
+<p class="info">Name: Sam Olds; E-Mail: samolds@yahoo.com; UID: u0742533</p>
 <p class="info">Name: Jesus Zarate; E-Mail: jesus.zarate@utah.edu; UID: u0816141</p>
 
-
-<div id="dashboard" class="view">
-
-</div>
-
-
-<div id="votes-percentage" class="view">
-</div>
-
-<div id="tileChart" class="view">
-    <div id="legend" class="view"></div>
-    <div id="tiles" class="view"></div>
-</div>
+<div id="dashboard" class="view" style="float: left;"></div>
+<svg width="500" height="400" id="barChart" style="border: 1px solid black; float: right;">
+  <g id="barchartSvg">
+    <g id="xAxis"></g>
+    <g id="yAxis"></g>
+    <g id="bars"></g>
+  </g>
+</svg>
 
 <script type="application/javascript" src="public/js/dashboard.js"></script>
 <script type="application/javascript" src="public/js/script.js"></script>
