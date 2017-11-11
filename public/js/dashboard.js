@@ -49,8 +49,6 @@ class Dashboard {
         let ref = this;
 
         data.forEach(function (k) {
-
-
             k.forEach(function (d) {
                 d["children"].forEach(function (k) {
                     k.forEach(function (d) {
@@ -63,7 +61,7 @@ class Dashboard {
         ref.addElements(parentDom, this.listData)
     }
 
-    clearList(){
+    clearList() {
         this.divDashboard.selectAll("ul").remove();
     }
 
@@ -75,7 +73,13 @@ class Dashboard {
             data.forEach(function (child) {
                 //add li element
                 parentDom.append("li")
-                    .text(child.key)
+                    .text(function () {
+                            if (child.key === undefined){
+                                return child.target;
+                            }
+                            return child.key;
+                        }
+                    )
                     .on("click", function (d) {
                         updateShowList(this.innerText, data);
                         //parentDom.selectAll("li").remove();
