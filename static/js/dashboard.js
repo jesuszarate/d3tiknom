@@ -13,13 +13,16 @@ class Dashboard {
         this.divDashboard.selectAll("ul").remove();
 
         let lu = this.divDashboard.append("ul")
-            .attr("class", "no-bullet");
+            .attr("class", "nav nav-pills flex-column");
 
         let li = lu.selectAll("li")
             .data([this.data]);
 
         li.enter()
             .append("li")
+            .attr("class", "nav-item")
+            .append("a")
+            .attr("class", "nav-link")
             .text(function (d) {
                 return d[0].key;
             })
@@ -64,6 +67,9 @@ class Dashboard {
             data.forEach(function (child) {
                 //add li element
                 parentDom.append("li")
+                    .attr("class", "nav-item")
+                    .append("a")
+                    .attr("class", "nav-link")
                     .text(function () {
                             if (child.key === undefined){
                                 return child.target;
@@ -76,7 +82,7 @@ class Dashboard {
                         //parentDom.selectAll("li").remove();
                         ref.clearList();
                         parentDom = ref.divDashboard.append("ul")
-                            .attr("class", "no-bullet");
+                            .attr("class", "nav nav-pills flex-column");
                         ref.addElements(parentDom, ref.listData);
                     });
                 // //if children then make ul
