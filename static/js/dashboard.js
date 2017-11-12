@@ -6,9 +6,7 @@ class Dashboard {
         this.margin = {top: 10, right: 20, bottom: 30, left: 50};
         this.divDashboard = d3.select("#dashboard");
         this.listData = []
-    }
 
-    update() {
         let ref = this;
         this.divDashboard.selectAll("ul").remove();
 
@@ -116,52 +114,56 @@ class Dashboard {
 
     buildTimePlot(data) {
         let margin = {top: 20, left: 70, bottom: 70, right: 20};
-        d3.select("#barchart-svg").attr("transform", "translate(" +
-            margin.left + "," + margin.top + ")");
 
-        let barchartSvg = d3.select("#bar-chart");
-        let chartWidth = +barchartSvg.attr("width") - margin.left -
-            margin.right;
-        let chartHeight = +barchartSvg.attr("height") - margin.top -
-            margin.bottom;
+        let plotIds = ["#box-plot", "#stack-trace-plot", "#comparison-plot",
+            "#dot-plot"];
 
-        // create the x and y scales; make sure to leave room for the axes
-        let xScale = d3.scaleBand()
-            .domain(data.datapoints.map((d) => d[1]))
-            .rangeRound([chartWidth, 0])
-            .padding(0.1);
+        plotIds.forEach(function(plotId) {
+            let barchartSvg = d3.select(plotId);
+            let computedSize = barchartSvg.node().getBoundingClientRect();
+            let chartWidth = computedSize.width - margin.left -
+                margin.right;
+            let chartHeight = computedSize.height - margin.top -
+                margin.bottom;
 
-        let yScale = d3.scaleLinear()
-            .domain([0, d3.max(data.datapoints, d => d[0])])
-            .rangeRound([chartHeight, 0]);
+            barchartSvg.select(".svg-plot").attr("transform", "translate(" +
+                margin.left + "," + margin.top + ")");
 
-        // create the bars
-        var bars = d3.select("#bars")
-            .selectAll("rect")
-            .data(data.datapoints);
 
-        bars.exit()
-            .transition()
-            .duration(this.durationTimeMs)
-            .attr("height", 0)
-            .remove();
+            // create the x and y scales; make sure to leave room for the axes
+            let xScale = d3.scaleBand()
+                .domain(data.datapoints.map((d) => d[1]))
+                .rangeRound([chartWidth, 0])
+                .padding(0.1);
 
-        var newBcSelection = bars.enter().append("rect");
-        newBcSelection
-            .transition()
-            .duration(0)
-            .attr("x", function(d) { return xScale(d[1]); });
+            let yScale = d3.scaleLinear()
+                .domain([0, d3.max(data.datapoints, d => d[0])])
+                .rangeRound([chartHeight, 0]);
 
-        var bcSelection = newBcSelection.merge(bars);
-        bcSelection
-            .transition()
-            .duration(this.durationTimeMs)
-            .attr("x", function (d) { return xScale(d[1]); })
-            .attr("y", function (d) { return yScale(d[0]); })
-            .attr("fill", "444")
-            .attr("width", xScale.bandwidth())
-            .attr("height", function (d) {
-              return chartHeight - yScale(d[0]);
-            });
+            // create the bars
+            var bars = barchartSvg.select(".bars")
+                .selectAll("rect")
+                .data(data.datapoints);
+
+            bars.exit()
+                .attr("height", 0)
+                .remove();
+
+            var newBcSelection = bars.enter().append("rect");
+            newBcSelection
+                .transition()
+                .duration(0)
+                .attr("x", function(d) { return xScale(d[1]); });
+
+            var bcSelection = newBcSelection.merge(bars);
+            bcSelection
+                .attr("x", function (d) { return xScale(d[1]); })
+                .attr("y", function (d) { return yScale(d[0]); })
+                .attr("fill", "444")
+                .attr("width", xScale.bandwidth())
+                .attr("height", function (d) {
+                  return chartHeight - yScale(d[0]);
+                });
+        });
     }
 }
