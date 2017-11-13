@@ -4,21 +4,36 @@ class Plots {
 
         // initializes the svg elements required for this chart
         this.margin = {top: 10, right: 20, bottom: 30, left: 50};
+
+        this.plotIds = ["#box-plot", "#stack-trace-plot", "#comparison-plot",
+            "#dot-plot"];
     }
 
     update(selectedTargets) {
-        let selectedTarget = selectedTargets[selectedTargets.length - 1];
-        let target = this.data[selectedTarget];
+        let targets = [];
+        for (let i = 0; i < selectedTargets.length; i++) {
+            targets.push(this.data[selectedTargets[i]]);
+        }
 
-        this.buildTimePlot(target);
+        if (targets.length === 0) {
+            this.clearPlots();
+        } else {
+            this.buildTimePlot(targets[0]);
+        }
+    }
+
+    clearPlots() {
+        this.plotIds.forEach(function(plotId) {
+            let bars = d3.select(plotId)
+                .select(".bars")
+                .selectAll("rect")
+                .remove();
+        });
     }
 
     buildTimePlot(target) {
-        let plotIds = ["#box-plot", "#stack-trace-plot", "#comparison-plot",
-            "#dot-plot"];
-
         let ref = this;
-        plotIds.forEach(function(plotId) {
+        this.plotIds.forEach(function(plotId) {
             let barchartSvg = d3.select(plotId);
             let computedSize = barchartSvg.node().getBoundingClientRect();
             let chartWidth = computedSize.width - ref.margin.left -

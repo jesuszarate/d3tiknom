@@ -8,11 +8,41 @@ d3.json("data/monkit_data.json", function (error, data) {
 });
 
 
+let Globals = {
+    // the number of data points checked in a target before the entire target
+    // is determined to have null data
+    NullDataCheckCount: 10,
+};
+
+
+function validDatapoint(datapoints) {
+    let dataFound = false;
+    let datapointsCount = datapoints.length;
+    let offset = datapointsCount / Globals.NullDataCheckCount;
+
+    // don't just check the first n datapoints, check n datapoints
+    // dispersed throughout
+    for (let j = 0; j < datapointsCount; j += offset) {
+        // only include data in the table with actual values. null data has
+        // {null}, {0}, or {1} in the 0th index
+        if (datapoints[j][0] !== null && datapoints[j][0] > 1) {
+            dataFound = true;
+            break;
+        }
+    }
+    return dataFound;
+}
+
+
 class navigationTree {
     constructor(data) {
         this.tree = this.addBranch(this.rootName());
-        data.forEach(function(d) {
-            let path = d.target.split(".");
+        data.forEach(function(t) {
+            if (!validDatapoint(t.datapoints)) {
+                return;
+            }
+
+            let path = t.target.split(".");
             let ptr = this.tree; 
             for (let i = 0; i < path.length; i++) {
                 let childProp = path[i];
@@ -26,7 +56,7 @@ class navigationTree {
                     ptr = ptr[childProp] = this.addBranch(position);
                 }
             }
-            ptr["target"] = d.target;
+            ptr["target"] = t.target;
         }, this);
     }
 
@@ -82,6 +112,10 @@ class dataTable {
         this.data = {};
         for (let i = 0; i < data.length; i++) {
             let t = data[i];
+            if (!validDatapoint(t.datapoints)) {
+                continue;
+            }
+
             this.data[t.target] = t.datapoints;
         }
         return this.data
