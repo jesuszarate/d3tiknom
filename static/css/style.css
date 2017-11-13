@@ -2,21 +2,6 @@ body {
     font-family: Lato;
 }
 
-/*
-h1 {
-    font-family: "Arvo";
-    font-size:35px;
-    color: #464646;
-    margin: 0px;
-    padding: 0px;
-    margin-left: 20px;
-}
-*/
-
-.info {
-    margin-left: 20px;
-}
-
 .end {
     text-anchor:end;
 }
@@ -101,4 +86,16 @@ h1 {
 .about {
     max-width: 46rem;
     margin-top: 30px;
+}
+
+.sidebar {
+    overflow-x: auto;
+}
+
+.sidebar ul li a:hover {
+    cursor: pointer;
+}
+
+.sidebar ul {
+  padding-left: 20px;
 }
