@@ -2,6 +2,7 @@ class Navigator {
     constructor(data) {
         this.data = new dataTable(data);
         this.dataTree = new navigationTree(data);
+        this.Plots = new Plots(this.data);
 
         // initializes the svg elements required for this chart
         this.margin = {top: 10, right: 20, bottom: 30, left: 50};
@@ -10,8 +11,6 @@ class Navigator {
         this.selectedPaths = [this.dataTree.rootName()];
         this.selectedTargets = [];
         this.update(this.divNavigator, this.dataTree.tree);
-
-        this.Plots = new Plots(this.data);
     }
 
     clear() {

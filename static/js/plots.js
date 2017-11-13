@@ -7,6 +7,10 @@ class Plots {
 
         this.plotIds = ["#box-plot", "#stack-trace-plot", "#comparison-plot",
             "#dot-plot"];
+
+        let ref = this;
+        d3.select("#plot-clearer")
+            .on("click", function() { ref.clearPlots(); });
     }
 
     update(selectedTargets) {
