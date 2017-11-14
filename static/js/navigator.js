@@ -9,8 +9,17 @@ class Navigator {
         this.divNavigator = d3.select("#navigator");
 
         this.selectedPaths = [this.dataTree.rootName()];
-        this.selectedTargets = [];
+        this.selectedGubbins = [];
         this.update(this.divNavigator, this.dataTree.tree);
+
+        let ref = this;
+        d3.select("#plot-clearer") .on("click", function() {
+            ref.selectedGubbins = [];
+            ref.Plots.clearPlots();
+            ref.clear();
+            ref.update(ref.divNavigator, ref.dataTree.tree);
+            ref.updatePlotSelectors();
+        });
     }
 
     clear() {
@@ -28,12 +37,12 @@ class Navigator {
     }
 
     // add or remove selected element from selections list
-    updateSelectedTargets(selection) {
-        let index = this.selectedTargets.indexOf(selection);
+    updateSelectedGubbins(selection) {
+        let index = this.selectedGubbins.indexOf(selection);
         if (index > -1) {
-            this.selectedTargets.splice(index, 1);
+            this.selectedGubbins.splice(index, 1);
         } else {
-            this.selectedTargets.push(selection);
+            this.selectedGubbins.push(selection);
         }
     }
 
@@ -70,29 +79,77 @@ class Navigator {
                 .append("li")
                 .attr("class", "nav-item");
 
+            let childKey = treeNode[child]["__meta__"].key;
+            let aClass = "nav-link";
+            if (ref.selectedGubbins.includes(childKey)) {
+                aClass += " selected-target";
+            }
+
             li.append("a")
-                .attr("class", "nav-link")
+                .attr("class", aClass)
                 .text(child)
-                .attr("id", treeNode[child]["__meta__"].key)
+                .attr("id", childKey)
                 .on("click", function () {
                     let ele = d3.select(this);
                     let name = ele.text();
                     let key = ele.node().id;
                     ref.clear();
+                    let node = ref.dataTree.nodeFromKey(key);
+                    if (node.hasOwnProperty("gubbin")) {
+                        ref.updateSelectedGubbins(key);
+                        ref.updatePlotSelectors();
+                    }
                     ref.updateSelectedPaths(key);
                     ref.update(ref.divNavigator, ref.dataTree.tree);
-                    let node = ref.dataTree.nodeFromKey(key);
-                    if (node.hasOwnProperty("target")) {
-                        ref.updateSelectedTargets(key);
-                        ref.Plots.update(ref.selectedTargets);
-                    }
                 });
 
-            let childKey = treeNode[child]["__meta__"].key;
             if (ref.selectedPaths.includes(childKey)) {
+                let node = ref.dataTree.nodeFromKey(childKey);
+                if (node.hasOwnProperty("gubbin")) {
+                    // don't recurse if the element is a gubbin
+                    return;
+                }
+
                 // the child element has been selected, so continue recursing
                 ref.update(li, treeNode[child]);
             }
         });
+    }
+
+    updatePlotSelectors() {
+        d3.selectAll(".target-selectors").selectAll("input").remove();
+        d3.selectAll(".target-selectors").selectAll("select").remove();
+
+        for (let i = 0; i < this.selectedGubbins.length; i++) {
+            let gub = this.dataTree.nodeFromKey(this.selectedGubbins[i]);
+            let metrics = gub["__meta__"].children;
+            d3.selectAll(".target-selectors")
+                .append("select")
+                .selectAll("option")
+                .data(metrics)
+                .enter()
+                .append("option")
+                .attr("value", (d) => d)
+                .text((d) => d);
+            let ids = []
+            for (let j = 0; j < metrics.length; j++) {
+                let met = this.dataTree.keyFromGubbinMetric(gub, metrics[i]);
+                let gubMet = this.dataTree.nodeFromKey(met);
+                gubMet["__meta__"].children.forEach(function(d) {
+                    if (!ids.includes(d)) { ids.push(d); }
+                });
+
+            }
+
+            d3.selectAll(".target-selectors")
+                .append("select")
+                .selectAll("option")
+                .data(ids)
+                .enter()
+                .append("option")
+                .attr("value", (d) => d)
+                .text((d) => d);
+        }
+        //this.Plot.update("something");
     }
 }

@@ -8,6 +8,7 @@ d3.json("data/monkit_data.json", function (error, data) {
 });
 
 
+// variables that are globally available
 let Globals = {
     // the number of data points checked in a target before the entire target
     // is determined to have null data
@@ -15,6 +16,7 @@ let Globals = {
 };
 
 
+// validates the raw datapoints
 function validDatapoint(datapoints) {
     let dataFound = false;
     let datapointsCount = datapoints.length;
@@ -54,6 +56,13 @@ class navigationTree {
                     // the child needs to be added
                     this.addChildBranch(ptr, childProp);
                     ptr = ptr[childProp] = this.addBranch(position);
+                }
+
+                // the actual gubbin we want to display is always 2 up from the
+                // leaf most nodes, but the ptr already moved down 1, so go
+                // back 3
+                if (i == path.length - 3) {
+                    ptr["gubbin"] = position;
                 }
             }
             ptr["target"] = t.target;
@@ -95,10 +104,18 @@ class navigationTree {
             if (ptr.hasOwnProperty(childProp)) {
                 ptr = ptr[childProp];
             } else {
-                throw "can't find path in tree";
+                throw "can't find path: <" + childProp + "> in tree: " + ptr.tree;
             }
         }
         return ptr;
+    }
+
+    keyFromGubbinMetric(gubbin, metric) {
+        return [gubbin["__meta__"].key, metric].join(".");
+    }
+
+    targetFromGubbinMetricId(gubbin, metric, id) {
+        return [gubbin["__meta__"].key, metric, id].join(".");
     }
 
     childrenFromKey(pathStr) {
