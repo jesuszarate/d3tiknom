@@ -114,3 +114,15 @@ body {
 .sidebar .selected-target {
     background-color: #ddd;
 }
+
+.gubbin-selected-0 {
+    background-color: #f00 !important;
+}
+
+.gubbin-selected-1 {
+    background-color: #0f0 !important;
+}
+
+.gubbin-selected-2 {
+    background-color: #00f !important;
+}

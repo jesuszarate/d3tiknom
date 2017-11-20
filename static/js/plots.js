@@ -1,18 +1,19 @@
 class Plots {
-    constructor(data) {
+    constructor(plotIds, data) {
         this.data = data;
 
         // initializes the svg elements required for this chart
         this.margin = {top: 10, right: 20, bottom: 30, left: 50};
 
-        this.plotIds = ["#box-plot", "#stack-trace-plot", "#comparison-plot",
-            "#dot-plot"];
+        this.plotIds = plotIds;
     }
 
     update(selectedTargets) {
+        console.log(selectedTargets);
+        let plotTargets = selectedTargets["#dot-plot"];
         let targets = [];
-        for (let i = 0; i < selectedTargets.length; i++) {
-            targets.push(this.data[selectedTargets[i]]);
+        for (let i = 0; i < plotTargets.length; i++) {
+            targets.push(this.data[plotTargets[i]]);
         }
 
         if (targets.length === 0) {
