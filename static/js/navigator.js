@@ -173,12 +173,14 @@ class Navigator {
     }
 
     sendTargetToPlots() {
+        let plotId = "#data-plot";
         let selectedTargets = {};
-        this.plotIds.forEach(function(plotId) {
-            selectedTargets[plotId] = [];
-        });
+        selectedTargets[plotId] = [];
+        //this.plotIds.forEach(function(plotId) {
+        //    selectedTargets[plotId] = [];
+        //});
 
-        this.plotIds.forEach(function(plotId) {
+        //this.plotIds.forEach(function(plotId) {
             d3.select(plotId).selectAll(".target-selector-group")
                 .each(function() {
                     let d = d3.select(this);
@@ -190,7 +192,7 @@ class Navigator {
                         metric + "." + id;
                     selectedTargets[plotId].push(target);
                 });
-        });
+        //});
 
         this.Plots.clearPlots();
         this.Plots.update(selectedTargets);

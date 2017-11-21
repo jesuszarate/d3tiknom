@@ -5,7 +5,8 @@ class Plots {
         // initializes the svg elements required for this chart
         this.margin = {top: 10, right: 20, bottom: 30, left: 50};
 
-        this.plotIds = plotIds;
+        //this.plotIds = plotIds;
+        this.plotIds = ["#data-plot"];
     }
 
     update(selectedTargets) {
@@ -13,44 +14,54 @@ class Plots {
         let stackTraceTargets = selectedTargets["#stack-trace-plot"];
         let comparisonTargets = selectedTargets["#comparison-plot"];
         let dotTargets = selectedTargets["#dot-plot"];
+        let dataTargets = selectedTargets["#data-plot"];
 
-        let boxData = []
-        for (let i = 0; i < boxTargets.length; i++) {
+        let boxData = [];
+        for (let i = 0; boxTargets && i < boxTargets.length; i++) {
             boxData.push({
                 "target": boxTargets[i],
                 "data":   this.data[boxTargets[i]]
             });
         }
 
-        let stackTraceData = []
-        for (let i = 0; i < stackTraceTargets.length; i++) {
+        let stackTraceData = [];
+        for (let i = 0; stackTraceTargets && i < stackTraceTargets.length; i++) {
             stackTraceData.push({
                 "target": stackTraceTargets[i],
                 "data":   this.data[stackTraceTargets[i]]
             });
         }
 
-        let comparisonData = []
-        for (let i = 0; i < comparisonTargets.length; i++) {
+        let comparisonData = [];
+        for (let i = 0; comparisonTargets && i < comparisonTargets.length; i++) {
             comparisonData.push({
                 "target": comparisonTargets[i],
                 "data":   this.data[comparisonTargets[i]]
             });
         }
 
-        let dotData = []
-        for (let i = 0; i < dotTargets.length; i++) {
+        let dotData = [];
+        for (let i = 0; dotTargets && i < dotTargets.length; i++) {
             dotData.push({
                 "target": dotTargets[i],
                 "data":   this.data[dotTargets[i]]
             });
         }
 
+        let dataData = [];
+        for (let i = 0; dataTargets && i < dataTargets.length; i++) {
+            dataData.push({
+                "target": dataTargets[i],
+                "data":   this.data[dataTargets[i]]
+            });
+        }
+
         this.clearPlots();
-        this.buildBoxPlot(boxData);
-        this.buildStackTracePlot(stackTraceData);
-        this.buildComparisonPlot(comparisonData);
-        this.buildDotPlot(dotData);
+        //this.buildBoxPlot(boxData);
+        //this.buildStackTracePlot(stackTraceData);
+        //this.buildComparisonPlot(comparisonData);
+        //this.buildDotPlot(dotData);
+        this.buildDataPlot(dataData);
     }
 
     clearPlots() {
@@ -61,6 +72,7 @@ class Plots {
             data.selectAll("circle").remove();
             data.selectAll("line").remove();
             data.selectAll("rect").remove();
+            data.selectAll("polyline").remove();
         });
     }
 
@@ -102,34 +114,30 @@ class Plots {
             return;
         }
 
-        console.log(targets);
         let plot = this.initializeSvgPlot("#dot-plot", targets);
-        let target = targets[0].data;
+        plot.svg.select(".data")
+            .append("text")
+            .text("TODO: not implemented");
+    }
 
-        // create the bars
-        let bars = plot.svg.select(".data")
-            .selectAll("rect")
-            .data(target);
+    buildDataPlot(targets) {
+        if (targets.length == 0) {
+            return;
+        }
 
-        bars.exit()
-            .attr("height", 0)
-            .remove();
+        let plot = this.initializeSvgPlot("#data-plot", targets);
+        let target = targets[0].data; // TODO(sam): support many
 
-        let newBcSelection = bars.enter().append("rect");
-        newBcSelection
-            .transition()
-            .duration(0)
-            .attr("x", function(d) { return plot.xScale(d[1]); });
+        let polylinePoints = "";
+        target.forEach(function(d) {
+            polylinePoints += plot.xScale(d[1]) + "," + plot.yScale(d[0]) + " ";
+        });
 
-        let bcSelection = newBcSelection.merge(bars);
-        bcSelection
-            .attr("x", function (d) { return plot.xScale(d[1]); })
-            .attr("y", function (d) { return plot.yScale(d[0]); })
-            .attr("fill", "444")
-            .attr("width", plot.xScale.bandwidth())
-            .attr("height", function (d) {
-                return plot.height - plot.yScale(d[0]);
-            });
+        // create the points
+        let points = plot.svg.select(".data")
+            .append("polyline")
+            .attr("points", polylinePoints)
+            .attr("style", "fill:none;stroke:black;stroke-width:3");
     }
 
     initializeSvgPlot(plotId, targets) {
@@ -144,14 +152,15 @@ class Plots {
             this.margin.left + "," + this.margin.top + ")");
 
         // create the x and y scales; make sure to leave room for the axes
-        let xScale = d3.scaleBand()
-            .domain(targets.map((d) => d.data.map((g) => g[1])))
-            .rangeRound([chartWidth, 0])
-            .padding(0.1);
+        let xScale = d3.scaleLinear()
+            .domain([d3.max(targets, d => d3.max(d.data, g => g[1])),
+                     d3.min(targets, d => d3.min(d.data, g => g[1]))])
+            .rangeRound([0, chartWidth]);
 
         let yScale = d3.scaleLinear()
-            .domain([0, d3.max(targets, d => d3.max(d.data, g => g[0]))])
-            .rangeRound([chartHeight, 0]);
+            .domain([d3.min(targets, d => d3.min(d.data, g => g[0])),
+                     d3.max(targets, d => d3.max(d.data, g => g[0]))])
+            .rangeRound([0, chartHeight]);
 
         return {
             svg: plotSvg,

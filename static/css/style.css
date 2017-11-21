@@ -73,7 +73,8 @@ body {
 }
 
 .visualization {
-  min-height: 23rem;
+  min-height: 50rem;
+  width: 100%;
 }
 
 .loading-vis {
