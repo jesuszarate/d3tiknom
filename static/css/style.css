@@ -127,3 +127,9 @@ body {
 .gubbin-selected-2 {
     background-color: #00f !important;
 }
+
+polyline {
+  fill: none;
+  stroke: #000;
+  stroke-width: 3px;
+}

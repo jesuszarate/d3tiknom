@@ -136,8 +136,7 @@ class Plots {
         // create the points
         let points = plot.svg.select(".data")
             .append("polyline")
-            .attr("points", polylinePoints)
-            .attr("style", "fill:none;stroke:black;stroke-width:3");
+            .attr("points", polylinePoints);
     }
 
     initializeSvgPlot(plotId, targets) {
