@@ -64,20 +64,21 @@ class TileChart {
             if (point === undefined) {
                 point = {
                     "gubbin": label,
-                    "attr": []
+                    "attr": {}
                 }
             }
 
             if (d.indexOf(".total") > -1) {
                 let datapoint = this.data[d];
 
-                point.attr.push({'total': datapoint[datapoint.length - 1][0]});
+                // point.attr.push({'total': datapoint[datapoint.length - 1][0]});
+                point.attr['total'] = datapoint[datapoint.length - 1][0];
                 this.tileData.splice(index, 1, point)
             }
 
             if (d.indexOf(".successes") > -1) {
                 let datapoint = this.data[d];
-                point.attr.push({'successes': datapoint[datapoint.length - 1][0]});
+                point.attr['successes'] = datapoint[datapoint.length - 1][0];
                 this.tileData.push(point);
             }
         }, this);
@@ -165,6 +166,7 @@ class TileChart {
             .style("fill", function (d) {
                 //return (colorScale(+d["RD_Difference"]));
                 return (colorScale(Math.random() * 100 - Math.random() * 100));
+                //return (colorScale(-Math.random() * 100));
             })
             .attr("height", height);
 
