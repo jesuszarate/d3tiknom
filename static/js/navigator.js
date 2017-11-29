@@ -1,20 +1,59 @@
+// from https://stackoverflow.com/a/901144
+function getParameterByName(name) {
+    let url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    let regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
+    let results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+String.prototype.trunc = String.prototype.trunc || function(n) {
+  return (this.length > n) ? this.substr(0, n-1) + '...' : this;
+};
+
 // Navigator generates all of the navigation elements
 class Navigator {
     constructor(data) {
-        this.plotIds = ["#box-plot", "#stack-trace-plot", "#comparison-plot",
-            "#dot-plot"];
-
         this.data = new dataTable(data);
         this.dataTree = new navigationTree(data);
-        this.Plots = new Plots(this.plotIds, this.data);
+        this.colorKeys = new colorKeys(data);
+
+        this.colorScale = d3.scaleOrdinal()
+            .domain([this.colorKeys.min, this.colorKeys.max])
+            .range(d3.schemeCategory10);
+
+        this.Plots = new Plots(this.data, this.colorKeys, this.colorScale);
 
         // initializes the svg elements required for this chart
         this.margin = {top: 10, right: 20, bottom: 30, left: 50};
         this.divNavigator = d3.select("#navigator");
+        this.scrollSpots = d3.select("nav.sidebar").node();
 
         this.selectedPaths = [this.dataTree.rootName()];
         this.selectedGubbins = [];
+
+        this.lastYScrollPosition = 0;
+        this.lastXScrollPosition = 0;
+
+        let preselection = getParameterByName("gubbin");
+        if (preselection !== null && preselection !== "") {
+            try {
+                this.dataTree.nodeFromKey(preselection);
+                let levels = preselection.split(".");
+                levels.forEach(function(_, i) {
+                    let path = levels.slice(0, i).join(".");
+                    if (path !== "") {
+                        this.selectedPaths.push(path);
+                    }
+                }, this);
+                this.selectedGubbins.push(preselection);
+            } catch (_) {}
+        }
+
         this.update(this.divNavigator, this.dataTree.tree);
+        this.updatePlotSelectors();
 
         let ref = this;
         d3.select("#plot-clearer").on("click", function() {
@@ -24,9 +63,38 @@ class Navigator {
             ref.update(ref.divNavigator, ref.dataTree.tree);
             ref.updatePlotSelectors();
         });
+
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        d3.selectAll(".legend").on("mousedown", function() {
+            let elmnt = d3.select(this).node();
+            let eo = d3.event;
+            // get the mouse cursor position at startup
+            pos3 = eo.clientX;
+            pos4 = eo.clientY;
+
+            // call a function whenever the cursor moves
+            d3.selection().on("mousemove", function() {
+                let e = d3.event;
+                // calculate the new cursor position
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                // set the element's new position
+                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+            });
+
+            d3.selection().on("mouseup", function() {
+                d3.selection().on("mouseup", null);
+                d3.selection().on("mousemove", null);
+            });
+        });
     }
 
     clear() {
+        this.lastYScrollPosition = this.scrollSpots.scrollTop;
+        this.lastXScrollPosition = this.scrollSpots.scrollLeft;
         this.divNavigator.selectAll("ul").remove();
     }
 
@@ -61,7 +129,7 @@ class Navigator {
                 break;
             }
         }
-        
+
         // the current treeNode doesn't exist in the selectedPaths, so there
         // is no point continuing recursing through the branch
         if (unusedLeaf) {
@@ -87,7 +155,7 @@ class Navigator {
             let aClass = "nav-link";
             let selectionIdx = ref.selectedGubbins.indexOf(childKey);
             if (selectionIdx > -1) {
-                aClass += " selected-target gubbin-selected-" + selectionIdx;
+                aClass += " selected-target gubbin-selected";
             }
 
             li.append("a")
@@ -102,10 +170,12 @@ class Navigator {
                     let node = ref.dataTree.nodeFromKey(key);
                     if (node.hasOwnProperty("gubbin")) {
                         ref.updateSelectedGubbins(key);
-                        ref.updatePlotSelectors();
                     }
                     ref.updateSelectedPaths(key);
                     ref.update(ref.divNavigator, ref.dataTree.tree);
+                    if (node.hasOwnProperty("gubbin")) {
+                        ref.updatePlotSelectors();
+                    }
                 });
 
             if (ref.selectedPaths.includes(childKey)) {
@@ -123,18 +193,29 @@ class Navigator {
 
     updatePlotSelectors() {
         d3.selectAll(".target-selectors")
-            .selectAll(".target-selector-group")
+            .selectAll("tr")
             .remove();
+
+        this.scrollSpots.scrollTop = this.lastYScrollPosition;
+        this.scrollSpots.scrollLeft = this.lastXScrollPosition;
 
         let ref = this;
         for (let i = 0; i < ref.selectedGubbins.length; i++) {
             let gub = ref.dataTree.nodeFromKey(ref.selectedGubbins[i]);
             let metrics = gub["__meta__"].children;
             let targetGroup = d3.selectAll(".target-selectors")
-                .append("div")
-                .attr("class", "target-selector-group gubbin-selected-" + i)
+                .append("tr")
+                .attr("class", "target-selector-group gubbin-selected")
+                .style("background-color",
+                    ref.colorScale(ref.colorKeys.data[gub.gubbin]))
                 .attr("x-gubbin", gub.gubbin);
+
+            let gubParts = gub.gubbin.split(".");
+            targetGroup.append("td")
+                .text(gubParts[gubParts.length - 1]);
+
             let metricSelect = targetGroup
+                .append("td")
                 .append("select")
                 .attr("class", "metric-target-selector");
             metricSelect.selectAll("option")
@@ -146,9 +227,10 @@ class Navigator {
             metricSelect.select("option")
                 .attr("selected", "selected");
             metricSelect.on("change", function() { ref.sendTargetToPlots(); });
+
             let ids = []
             for (let j = 0; j < metrics.length; j++) {
-                let met = ref.dataTree.keyFromGubbinMetric(gub, metrics[i]);
+                let met = ref.dataTree.keyFromGubbinMetric(gub, metrics[j]);
                 let gubMet = ref.dataTree.nodeFromKey(met);
                 gubMet["__meta__"].children.forEach(function(d) {
                     if (!ids.includes(d)) { ids.push(d); }
@@ -156,6 +238,7 @@ class Navigator {
             }
 
             let idSelect = targetGroup
+                .append("td")
                 .append("select")
                 .attr("class", "id-target-selector");
             idSelect.selectAll("option")
@@ -173,14 +256,15 @@ class Navigator {
     }
 
     sendTargetToPlots() {
-        let plotId = "#data-plot";
         let selectedTargets = {};
-        selectedTargets[plotId] = [];
-        //this.plotIds.forEach(function(plotId) {
-        //    selectedTargets[plotId] = [];
-        //});
+        d3.selectAll(".graph-group")
+            .each(function() {
+                let plotId = "#" + d3.select(this).node().getAttribute("id");
+                selectedTargets[plotId] = [];
+            });
+        let plotIds = Object.keys(selectedTargets);
 
-        //this.plotIds.forEach(function(plotId) {
+        plotIds.forEach(function(plotId) {
             d3.select(plotId).selectAll(".target-selector-group")
                 .each(function() {
                     let d = d3.select(this);
@@ -192,13 +276,9 @@ class Navigator {
                         metric + "." + id;
                     selectedTargets[plotId].push(target);
                 });
-        //});
+        });
 
         this.Plots.clearPlots();
         this.Plots.update(selectedTargets);
     }
 }
-
-String.prototype.trunc = String.prototype.trunc || function(n) {
-  return (this.length > n) ? this.substr(0, n-1) + '...' : this;
-};

@@ -1,12 +1,14 @@
 class Plots {
-    constructor(plotIds, data) {
+    constructor(data, colorKeys, colorScale) {
         this.data = data;
+        this.colorKeys = colorKeys;
+        this.colorScale = colorScale;
 
         // initializes the svg elements required for this chart
-        this.margin = {top: 10, right: 20, bottom: 30, left: 50};
+        this.margin = {top: 20, right: 20, bottom: 200, left: 100};
 
-        //this.plotIds = plotIds;
-        this.plotIds = ["#data-plot"];
+        this.plotIds = ["#box-plot", "#stack-trace-plot", "#comparison-plot",
+            "#dot-plot"];
     }
 
     update(selectedTargets) {
@@ -14,7 +16,6 @@ class Plots {
         let stackTraceTargets = selectedTargets["#stack-trace-plot"];
         let comparisonTargets = selectedTargets["#comparison-plot"];
         let dotTargets = selectedTargets["#dot-plot"];
-        let dataTargets = selectedTargets["#data-plot"];
 
         let boxData = [];
         for (let i = 0; boxTargets && i < boxTargets.length; i++) {
@@ -48,20 +49,13 @@ class Plots {
             });
         }
 
-        let dataData = [];
-        for (let i = 0; dataTargets && i < dataTargets.length; i++) {
-            dataData.push({
-                "target": dataTargets[i],
-                "data":   this.data[dataTargets[i]]
-            });
-        }
+        console.log(dotData);
 
         this.clearPlots();
-        //this.buildBoxPlot(boxData);
-        //this.buildStackTracePlot(stackTraceData);
-        //this.buildComparisonPlot(comparisonData);
-        //this.buildDotPlot(dotData);
-        this.buildDataPlot(dataData);
+        this.buildBoxPlot(boxData);
+        this.buildStackTracePlot(stackTraceData);
+        this.buildComparisonPlot(comparisonData);
+        this.buildDotPlot(dotData);
     }
 
     clearPlots() {
@@ -73,6 +67,16 @@ class Plots {
             data.selectAll("line").remove();
             data.selectAll("rect").remove();
             data.selectAll("polyline").remove();
+
+            let xaxis = d3.select(plotId)
+                .select(".x-axis");
+            xaxis.selectAll("path").remove();
+            xaxis.selectAll("g").remove();
+
+            let yaxis = d3.select(plotId)
+                .select(".y-axis");
+            yaxis.selectAll("path").remove();
+            yaxis.selectAll("g").remove();
         });
     }
 
@@ -103,10 +107,43 @@ class Plots {
             return;
         }
 
+        let ref = this;
         let plot = this.initializeSvgPlot("#comparison-plot", targets);
-        plot.svg.select(".data")
-            .append("text")
-            .text("TODO: not implemented");
+
+        // create the axes
+        plot.svg.select(".svg-plot").select(".x-axis")
+            .attr("transform", "translate(0," + plot.height + ")")
+            .call(d3.axisBottom(plot.xScale).tickFormat(function(i) {
+                let date = new Date(i * 1000);
+                return date.toGMTString();
+            }))
+          .selectAll("text")
+            .attr("transform", "rotate(-15)")
+            .attr("x", -5)
+            .attr("y", 20)
+            .attr("dy", 0)
+            .attr("text-anchor", "end");
+
+        plot.svg.select(".svg-plot").select(".y-axis")
+            .call(d3.axisLeft(plot.yScale).ticks(10));
+
+        targets.forEach(function(target, i) {
+            let polylinePoints = "";
+            target.data.forEach(function(d) {
+                polylinePoints += plot.xScale(d[1]) + "," +
+                    plot.yScale(d[0]) + " ";
+            });
+
+            let gubbin = gubbinFromTarget(target.target);
+
+            // create the points
+            let points = plot.svg.select(".data")
+                .append("polyline")
+                .attr("class", "gubbin-selected")
+                .attr("stroke",
+                    ref.colorScale(ref.colorKeys.data[gubbin]))
+                .attr("points", polylinePoints);
+        });
     }
 
     buildDotPlot(targets) {
@@ -118,26 +155,6 @@ class Plots {
         plot.svg.select(".data")
             .append("text")
             .text("TODO: not implemented");
-    }
-
-    buildDataPlot(targets) {
-        if (targets.length == 0) {
-            return;
-        }
-
-        let plot = this.initializeSvgPlot("#data-plot", targets);
-        let target = targets[0].data; // TODO(sam): support many
-
-        let polylinePoints = "";
-        target.forEach(function(d) {
-            polylinePoints += plot.xScale(d[1]) + "," + plot.yScale(d[0]) + " ";
-        });
-
-        // create the points
-        let points = plot.svg.select(".data")
-            .append("polyline")
-            .attr("points", polylinePoints)
-            .attr("style", "fill:none;stroke:black;stroke-width:3");
     }
 
     initializeSvgPlot(plotId, targets) {
@@ -153,13 +170,13 @@ class Plots {
 
         // create the x and y scales; make sure to leave room for the axes
         let xScale = d3.scaleLinear()
-            .domain([d3.max(targets, d => d3.max(d.data, g => g[1])),
-                     d3.min(targets, d => d3.min(d.data, g => g[1]))])
+            .domain([d3.min(targets, d => d3.min(d.data, g => g[1])),
+                    d3.max(targets, d => d3.max(d.data, g => g[1]))])
             .rangeRound([0, chartWidth]);
 
         let yScale = d3.scaleLinear()
-            .domain([d3.min(targets, d => d3.min(d.data, g => g[0])),
-                     d3.max(targets, d => d3.max(d.data, g => g[0]))])
+            .domain([d3.max(targets, d => d3.max(d.data, g => g[0])),
+                     d3.min(targets, d => d3.min(d.data, g => g[0]))])
             .rangeRound([0, chartHeight]);
 
         return {

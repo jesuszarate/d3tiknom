@@ -26,8 +26,14 @@
 
       <div class="collapse navbar-collapse" id="navbars">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
+          <li class="nav-item">
             <a class="nav-link" href="/">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/comparison.html">Compare</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="/scatter.html">Scatter</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/about.html">About</a>
@@ -60,56 +66,64 @@
 
       <main role="main" class="col-sm-9 ml-sm-auto col-md-10">
         <div class="row text-center">
-          <div id="box-plot" class="col-sm-6">
-            <form class="target-selectors"></form>
-            <svg class="visualization">
+          <div id="box-plot" class="col-sm-6 graph-group">
+            <div class="legend">
+              <h4>Box Plots</h4>
+              <div class="text-muted">Success/Error/Total Counts</div>
+              <table class="target-selectors"></table>
+            </div>
+            <svg class="small-visualization">
               <g class="svg-plot">
-                <g class="xAxis"></g>
-                <g class="yAxis"></g>
+                <g class="x-axis"></g>
+                <g class="y-axis"></g>
                 <g class="data"></g>
               </g>
             </svg>
-            <h4>Box Plot</h4>
-            <div class="text-muted">Something else</div>
           </div>
-          <div id="stack-trace-plot" class="col-sm-6">
-            <form class="target-selectors"></form>
-            <svg class="visualization">
+          <div id="stack-trace-plot" class="col-sm-6 graph-group">
+            <div class="legend">
+              <h4>Stack Trace Timing</h4>
+              <div class="text-muted">Success/Error/Total Counts</div>
+              <table class="target-selectors"></table>
+            </div>
+            <svg class="small-visualization">
               <g class="svg-plot">
-                <g class="xAxis"></g>
-                <g class="yAxis"></g>
+                <g class="x-axis"></g>
+                <g class="y-axis"></g>
                 <g class="data"></g>
               </g>
             </svg>
-            <h4>Stack Trace Timing</h4>
-            <span class="text-muted">Something else</span>
           </div>
         </div>
         <div class="clearfix"></div>
         <div class="row text-center">
-          <div id="comparison-plot" class="col-sm-6">
-            <form class="target-selectors"></form>
-            <svg class="visualization">
+          <div id="comparison-plot" class="col-sm-6 graph-group">
+            <div class="legend">
+              <h4>Comparison</h4>
+              <div class="text-muted">Success/Error/Total Counts</div>
+              <table class="target-selectors"></table>
+            </div>
+            <svg class="small-visualization">
               <g class="svg-plot">
-                <g class="xAxis"></g>
-                <g class="yAxis"></g>
+                <g class="x-axis"></g>
+                <g class="y-axis"></g>
                 <g class="data"></g>
               </g>
             </svg>
-            <h4>Comparison</h4>
-            <span class="text-muted">Something else</span>
           </div>
-          <div id="dot-plot" class="col-sm-6">
-            <form class="target-selectors"></form>
-            <svg class="visualization">
+          <div id="dot-plot" class="col-sm-6 graph-group">
+            <div class="legend">
+              <h4>Dot Plot</h4>
+              <div class="text-muted">Success/Error/Total Counts</div>
+              <table class="target-selectors"></table>
+            </div>
+            <svg class="small-visualization">
               <g class="svg-plot">
-                <g class="xAxis"></g>
-                <g class="yAxis"></g>
+                <g class="x-axis"></g>
+                <g class="y-axis"></g>
                 <g class="data"></g>
               </g>
             </svg>
-            <h4>Dot Plot</h4>
-            <span class="text-muted">Something else</span>
           </div>
         </div>
       </main>
@@ -124,7 +138,7 @@
       type="text/javascript"></script>
 
   <script src="static/js/data.js" type="text/javascript"></script>
-  <script src="static/js/plots.js" type="text/javascript"></script>
+  <script src="static/js/scatter_plots.js" type="text/javascript"></script>
   <script src="static/js/navigator.js" type="text/javascript"></script>
 </body>
 </html>

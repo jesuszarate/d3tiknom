@@ -12,7 +12,8 @@ d3.json("data/monkit_data.json", function (error, data) {
 let Globals = {
     // the number of data points checked in a target before the entire target
     // is determined to have null data
-    NullDataCheckCount: 10,
+    NullDataCheckCount:   20,
+    WhitelistedInterests: ["successes", "errors", "failures", "total"],
 };
 
 
@@ -36,6 +37,18 @@ function validDatapoint(datapoints) {
 }
 
 
+// indicates that the target is a data type we're interested in.
+function interestedInTarget(target) {
+    for (let i = 0; i < Globals.WhitelistedInterests.length; i++) {
+        let ist = "." + Globals.WhitelistedInterests[i] + ".";
+        if (target.indexOf(ist) > -1) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 class navigationTree {
     constructor(data) {
         this.tree = this.addBranch(this.rootName());
@@ -44,8 +57,12 @@ class navigationTree {
                 return;
             }
 
+            if (!interestedInTarget(t.target)) {
+                return;
+            }
+
             let path = t.target.split(".");
-            let ptr = this.tree; 
+            let ptr = this.tree;
             for (let i = 0; i < path.length; i++) {
                 let childProp = path[i];
                 let position = path.slice(0, i + 1).join(".");
@@ -94,7 +111,7 @@ class navigationTree {
         pathStr = pathStr.replace(this.rootName(), "");
 
         let path = pathStr.split(".");
-        let ptr = this.tree; 
+        let ptr = this.tree;
         for (let i = 0; i < path.length; i++) {
             let childProp = path[i];
             if (childProp === "") {
@@ -123,6 +140,10 @@ class navigationTree {
     }
 }
 
+function gubbinFromTarget(target) {
+    let parts = target.split(".");
+    return parts.splice(0, parts.length - 2).join(".");
+}
 
 class dataTable {
     constructor(data) {
@@ -133,8 +154,39 @@ class dataTable {
                 continue;
             }
 
+            if (!interestedInTarget(t.target)) {
+                continue;
+            }
+
             this.data[t.target] = t.datapoints;
         }
-        return this.data
+        return this.data;
+    }
+}
+
+
+class colorKeys {
+    constructor(data) {
+        this.data = {};
+        this.min = 0;
+        this.max = 0;
+        for (let i = this.min; i < data.length; i++) {
+            let t = data[i];
+            if (!validDatapoint(t.datapoints)) {
+                continue;
+            }
+
+            if (!interestedInTarget(t.target)) {
+                continue;
+            }
+
+            let gubbin = gubbinFromTarget(t.target);
+            if (this.data.hasOwnProperty(gubbin)) {
+                continue;
+            }
+
+            this.data[gubbin] = this.max;
+            this.max++;
+        }
     }
 }

@@ -73,18 +73,23 @@ body {
 }
 
 .visualization {
-  min-height: 50rem;
-  width: 100%;
+    min-height: 50rem;
+    width: 100%;
+}
+
+.small-visualization {
+    min-height: 25rem;
+    width: 100%;
 }
 
 .loading-vis {
-  width: 75%;
+    width: 75%;
 }
 
 .center {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .about {
@@ -116,16 +121,22 @@ body {
     background-color: #ddd;
 }
 
-.gubbin-selected-0 {
-    background-color: #f00 !important;
+.gubbin-selected {
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
-.gubbin-selected-1 {
-    background-color: #0f0 !important;
+.legend {
+    position: absolute;
+    border: 1px solid #d3d3d3;
+    z-index: 10;
+    cursor: move;
+    background-color: #fff;
+    padding: 20px;
 }
 
-.gubbin-selected-2 {
-    background-color: #00f !important;
+polyline {
+    fill: none;
+    stroke-width: 3px;
 }
 
 .tile {

@@ -1,5 +1,5 @@
 /** Class implementing the tileChart. */
-class TileChart {
+class Overview {
 
     /**
      * Initializes the svg elements required to lay the tiles
