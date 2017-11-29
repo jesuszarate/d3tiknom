@@ -190,8 +190,8 @@ class TileChart {
                 return (width * height) / 1400;
             })
             .text(function (d) {
-                let label = Object.keys(d)[0].split(".");
-                return label[label.length - 3];
+
+                return d["gubbin"];
             })
             .attr("class", function (d) {
                 return "tilestext";
