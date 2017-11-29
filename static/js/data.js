@@ -12,7 +12,8 @@ d3.json("data/monkit_data.json", function (error, data) {
 let Globals = {
     // the number of data points checked in a target before the entire target
     // is determined to have null data
-    NullDataCheckCount: 10,
+    NullDataCheckCount:   20,
+    WhitelistedInterests: ["successes", "errors", "failures", "total"],
 };
 
 
@@ -36,11 +37,27 @@ function validDatapoint(datapoints) {
 }
 
 
+// indicates that the target is a data type we're interested in.
+function interestedInTarget(target) {
+    for (let i = 0; i < Globals.WhitelistedInterests.length; i++) {
+        let ist = "." + Globals.WhitelistedInterests[i] + ".";
+        if (target.indexOf(ist) > -1) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 class navigationTree {
     constructor(data) {
         this.tree = this.addBranch(this.rootName());
         data.forEach(function(t) {
             if (!validDatapoint(t.datapoints)) {
+                return;
+            }
+
+            if (!interestedInTarget(t.target)) {
                 return;
             }
 
@@ -137,6 +154,10 @@ class dataTable {
                 continue;
             }
 
+            if (!interestedInTarget(t.target)) {
+                continue;
+            }
+
             this.data[t.target] = t.datapoints;
         }
         return this.data;
@@ -152,6 +173,10 @@ class colorKeys {
         for (let i = this.min; i < data.length; i++) {
             let t = data[i];
             if (!validDatapoint(t.datapoints)) {
+                continue;
+            }
+
+            if (!interestedInTarget(t.target)) {
                 continue;
             }
 

@@ -33,9 +33,13 @@ class Navigator {
         // initializes the svg elements required for this chart
         this.margin = {top: 10, right: 20, bottom: 30, left: 50};
         this.divNavigator = d3.select("#navigator");
+        this.scrollSpots = d3.select("nav.sidebar").node();
 
         this.selectedPaths = [this.dataTree.rootName()];
         this.selectedGubbins = [];
+
+        this.lastYScrollPosition = 0;
+        this.lastXScrollPosition = 0;
 
         let preselection = getParameterByName("gubbin");
         if (preselection !== null && preselection !== "") {
@@ -50,10 +54,7 @@ class Navigator {
         }
 
         this.update(this.divNavigator, this.dataTree.tree);
-
-        if (preselection !== null && preselection !== "") {
-            this.updatePlotSelectors();
-        }
+        this.updatePlotSelectors();
 
         let ref = this;
         d3.select("#plot-clearer").on("click", function() {
@@ -94,6 +95,8 @@ class Navigator {
     }
 
     clear() {
+        this.lastYScrollPosition = this.scrollSpots.scrollTop;
+        this.lastXScrollPosition = this.scrollSpots.scrollLeft;
         this.divNavigator.selectAll("ul").remove();
     }
 
@@ -169,10 +172,12 @@ class Navigator {
                     let node = ref.dataTree.nodeFromKey(key);
                     if (node.hasOwnProperty("gubbin")) {
                         ref.updateSelectedGubbins(key);
-                        ref.updatePlotSelectors();
                     }
                     ref.updateSelectedPaths(key);
                     ref.update(ref.divNavigator, ref.dataTree.tree);
+                    if (node.hasOwnProperty("gubbin")) {
+                        ref.updatePlotSelectors();
+                    }
                 });
 
             if (ref.selectedPaths.includes(childKey)) {
@@ -192,6 +197,9 @@ class Navigator {
         d3.selectAll(".target-selectors")
             .selectAll("tr")
             .remove();
+
+        this.scrollSpots.scrollTop = this.lastYScrollPosition;
+        this.scrollSpots.scrollLeft = this.lastXScrollPosition;
 
         let ref = this;
         for (let i = 0; i < ref.selectedGubbins.length; i++) {
