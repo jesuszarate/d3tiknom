@@ -65,21 +65,41 @@ class TileChart {
                 point = {
                     "gubbin": label,
                     "attr": {}
-                }
+                };
+                this.tileData.push(point);
             }
 
             if (d.indexOf(".total") > -1) {
                 let datapoint = this.data[d];
 
                 // point.attr.push({'total': datapoint[datapoint.length - 1][0]});
-                point.attr['total'] = datapoint[datapoint.length - 1][0];
-                this.tileData.splice(index, 1, point)
+                //point.attr['total'] = datapoint[datapoint.length - 1][0];
+                //this.tileData.splice(index, 1, point);
+                this.tileData[index].attr['total'] = datapoint[datapoint.length - 1][0]
             }
 
             if (d.indexOf(".successes") > -1) {
                 let datapoint = this.data[d];
-                point.attr['successes'] = datapoint[datapoint.length - 1][0];
-                this.tileData.push(point);
+                //point.attr['successes'] = datapoint[datapoint.length - 1][0];
+                // this.tileData.push(point);
+                // this.tileData.splice(index, 1, point)
+                this.tileData[index].attr['successes'] = datapoint[datapoint.length - 1][0]
+            }
+
+            if (d.indexOf(".failures") > -1) {
+                let datapoint = this.data[d];
+                // point.attr['failures'] = datapoint[datapoint.length - 1][0];
+                // this.tileData.push(point);
+                // this.tileData.splice(index, 1, point)
+                this.tileData[index].attr['failures'] = datapoint[datapoint.length - 1][0]
+            }
+
+            if (d.indexOf(".errors") > -1) {
+                let datapoint = this.data[d];
+                // point.attr['errors'] = datapoint[datapoint.length - 1][0];
+                // this.tileData.push(point);
+                // this.tileData.splice(index, 1, point)
+                this.tileData[index].attr['errors'] = datapoint[datapoint.length - 1][0]
             }
         }, this);
     }
