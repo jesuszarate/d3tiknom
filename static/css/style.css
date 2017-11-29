@@ -127,3 +127,17 @@ body {
 .gubbin-selected-2 {
     background-color: #00f !important;
 }
+
+.tile {
+    stroke: #FFF;
+    stroke-width: 3;
+}
+
+.tilestext{
+    text-anchor:middle;
+    /*font-size: 12px;*/
+    /*fill: #565656;*/
+    fill: white;
+    stroke-width: 0.1px;
+    /*stroke: #e5e5e5;*/
+}

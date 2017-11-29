@@ -4,6 +4,8 @@ d3.json("data/monkit_data.json", function (error, data) {
     }
 
     let navigator = new Navigator(data);
+    let overview = new TileChart(data);
+    overview.update();
     d3.select("#loading-gif").remove();
 });
 
