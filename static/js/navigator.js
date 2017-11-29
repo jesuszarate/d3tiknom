@@ -39,14 +39,17 @@ class Navigator {
 
         let preselection = getParameterByName("gubbin");
         if (preselection !== null && preselection !== "") {
-            let levels = preselection.split(".");
-            levels.forEach(function(_, i) {
-                let path = levels.slice(0, i).join(".");
-                if (path !== "") {
-                    this.selectedPaths.push(path);
-                }
-            }, this);
-            this.selectedGubbins.push(preselection);
+            try {
+                this.dataTree.nodeFromKey(preselection);
+                let levels = preselection.split(".");
+                levels.forEach(function(_, i) {
+                    let path = levels.slice(0, i).join(".");
+                    if (path !== "") {
+                        this.selectedPaths.push(path);
+                    }
+                }, this);
+                this.selectedGubbins.push(preselection);
+            } catch (_) {}
         }
 
         this.update(this.divNavigator, this.dataTree.tree);
