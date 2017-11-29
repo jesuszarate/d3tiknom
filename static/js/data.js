@@ -3,7 +3,20 @@ d3.json("data/monkit_data.json", function (error, data) {
         throw error;
     }
 
-    let navigator = new Navigator(data);
+    try {
+        let navigator = new Navigator(data);
+    }
+    catch (err){
+        console.log('Navigator not used');
+    }
+    try{
+        let overview = new Overview(data);
+        overview.update();
+    }
+    catch (err){
+        console.log('Overview not used');
+    }
+
     d3.select("#loading-gif").remove();
 });
 

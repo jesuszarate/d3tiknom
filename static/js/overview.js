@@ -54,7 +54,7 @@ class Overview {
 
 
             let tileData = this.tileData;
-            let index = -1;
+            let index = 0;
             let point = this.tileData.find(function (d1, i) {
                 let l = d.indexOf(d1["gubbin"]) > -1;
                 index = i;
@@ -184,7 +184,7 @@ class Overview {
             })
             .attr("height", height)
             .on("click", function (d) {
-                window.open("index.html?gubbin=" + d["gubbin"],"_self")
+                window.open("scatter.html?gubbin=" + d["gubbin"],"_self")
             });
 
         let label = tile.append("text");
