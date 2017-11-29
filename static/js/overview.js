@@ -164,9 +164,16 @@ class TileChart {
         tile.append("rect")
             .attr("width", width)
             .style("fill", function (d) {
-                //return (colorScale(+d["RD_Difference"]));
-                return (colorScale(Math.random() * 100 - Math.random() * 100));
-                //return (colorScale(-Math.random() * 100));
+                let successes = d.attr["successes"];
+                let total = d.attr["total"];
+
+                if (total === undefined){
+                    total = 0;
+                }
+                if (successes === undefined){
+                    successes = 0;
+                }
+                return (colorScale(successes - total));
             })
             .attr("height", height);
 
