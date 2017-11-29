@@ -1,5 +1,5 @@
 class Plots {
-    constructor(plotIds, data, colorKeys, colorScale) {
+    constructor(data, colorKeys, colorScale) {
         this.data = data;
         this.colorKeys = colorKeys;
         this.colorScale = colorScale;
@@ -7,8 +7,8 @@ class Plots {
         // initializes the svg elements required for this chart
         this.margin = {top: 20, right: 20, bottom: 200, left: 100};
 
-        //this.plotIds = plotIds;
-        this.plotIds = ["#data-plot"];
+        this.plotIds = ["#box-plot", "#stack-trace-plot", "#comparison-plot",
+            "#dot-plot"];
     }
 
     update(selectedTargets) {
@@ -16,7 +16,6 @@ class Plots {
         let stackTraceTargets = selectedTargets["#stack-trace-plot"];
         let comparisonTargets = selectedTargets["#comparison-plot"];
         let dotTargets = selectedTargets["#dot-plot"];
-        let dataTargets = selectedTargets["#data-plot"];
 
         let boxData = [];
         for (let i = 0; boxTargets && i < boxTargets.length; i++) {
@@ -50,20 +49,13 @@ class Plots {
             });
         }
 
-        let dataData = [];
-        for (let i = 0; dataTargets && i < dataTargets.length; i++) {
-            dataData.push({
-                "target": dataTargets[i],
-                "data":   this.data[dataTargets[i]]
-            });
-        }
+        console.log(dotData);
 
         this.clearPlots();
-        //this.buildBoxPlot(boxData);
-        //this.buildStackTracePlot(stackTraceData);
-        //this.buildComparisonPlot(comparisonData);
-        //this.buildDotPlot(dotData);
-        this.buildDataPlot(dataData);
+        this.buildBoxPlot(boxData);
+        this.buildStackTracePlot(stackTraceData);
+        this.buildComparisonPlot(comparisonData);
+        this.buildDotPlot(dotData);
     }
 
     clearPlots() {
@@ -115,30 +107,26 @@ class Plots {
             return;
         }
 
-        let plot = this.initializeSvgPlot("#comparison-plot", targets);
-        plot.svg.select(".data")
-            .append("text")
-            .text("TODO: not implemented");
-    }
-
-    buildDotPlot(targets) {
-        if (targets.length == 0) {
-            return;
-        }
-
-        let plot = this.initializeSvgPlot("#dot-plot", targets);
-        plot.svg.select(".data")
-            .append("text")
-            .text("TODO: not implemented");
-    }
-
-    buildDataPlot(targets) {
-        if (targets.length == 0) {
-            return;
-        }
-
         let ref = this;
-        let plot = this.initializeSvgPlot("#data-plot", targets);
+        let plot = this.initializeSvgPlot("#comparison-plot", targets);
+
+        // create the axes
+        plot.svg.select(".svg-plot").select(".x-axis")
+            .attr("transform", "translate(0," + plot.height + ")")
+            .call(d3.axisBottom(plot.xScale).tickFormat(function(i) {
+                let date = new Date(i * 1000);
+                return date.toGMTString();
+            }))
+          .selectAll("text")
+            .attr("transform", "rotate(-15)")
+            .attr("x", -5)
+            .attr("y", 20)
+            .attr("dy", 0)
+            .attr("text-anchor", "end");
+
+        plot.svg.select(".svg-plot").select(".y-axis")
+            .call(d3.axisLeft(plot.yScale).ticks(10));
+
         targets.forEach(function(target, i) {
             let polylinePoints = "";
             target.data.forEach(function(d) {
@@ -156,6 +144,17 @@ class Plots {
                     ref.colorScale(ref.colorKeys.data[gubbin]))
                 .attr("points", polylinePoints);
         });
+    }
+
+    buildDotPlot(targets) {
+        if (targets.length == 0) {
+            return;
+        }
+
+        let plot = this.initializeSvgPlot("#dot-plot", targets);
+        plot.svg.select(".data")
+            .append("text")
+            .text("TODO: not implemented");
     }
 
     initializeSvgPlot(plotId, targets) {
@@ -179,23 +178,6 @@ class Plots {
             .domain([d3.max(targets, d => d3.max(d.data, g => g[0])),
                      d3.min(targets, d => d3.min(d.data, g => g[0]))])
             .rangeRound([0, chartHeight]);
-
-        // create the axes
-        plotSvg.select(".svg-plot").select(".x-axis")
-            .attr("transform", "translate(0," + chartHeight + ")")
-            .call(d3.axisBottom(xScale).tickFormat(function(i) {
-                let date = new Date(i * 1000);
-                return date.toGMTString();
-            }))
-          .selectAll("text")
-            .attr("transform", "rotate(-15)")
-            .attr("x", -5)
-            .attr("y", 20)
-            .attr("dy", 0)
-            .attr("text-anchor", "end");
-
-        plotSvg.select(".svg-plot").select(".y-axis")
-            .call(d3.axisLeft(yScale).ticks(10));
 
         return {
             svg: plotSvg,

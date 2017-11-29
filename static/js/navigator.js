@@ -16,9 +16,6 @@ String.prototype.trunc = String.prototype.trunc || function(n) {
 // Navigator generates all of the navigation elements
 class Navigator {
     constructor(data) {
-        this.plotIds = ["#box-plot", "#stack-trace-plot", "#comparison-plot",
-            "#dot-plot"];
-
         this.data = new dataTable(data);
         this.dataTree = new navigationTree(data);
         this.colorKeys = new colorKeys(data);
@@ -27,8 +24,7 @@ class Navigator {
             .domain([this.colorKeys.min, this.colorKeys.max])
             .range(d3.schemeCategory10);
 
-        this.Plots = new Plots(this.plotIds, this.data, this.colorKeys,
-            this.colorScale);
+        this.Plots = new Plots(this.data, this.colorKeys, this.colorScale);
 
         // initializes the svg elements required for this chart
         this.margin = {top: 10, right: 20, bottom: 30, left: 50};
@@ -65,14 +61,13 @@ class Navigator {
             ref.updatePlotSelectors();
         });
 
-        let legend = d3.select(".legend");
         let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-        legend.on("mousedown", function() {
+        d3.selectAll(".legend").on("mousedown", function() {
+            let elmnt = d3.select(this).node();
             let eo = d3.event;
             // get the mouse cursor position at startup
             pos3 = eo.clientX;
             pos4 = eo.clientY;
-            let elmnt = legend.node();
 
             // call a function whenever the cursor moves
             d3.selection().on("mousemove", function() {
@@ -258,14 +253,15 @@ class Navigator {
     }
 
     sendTargetToPlots() {
-        let plotId = "#data-plot";
         let selectedTargets = {};
-        selectedTargets[plotId] = [];
-        //this.plotIds.forEach(function(plotId) {
-        //    selectedTargets[plotId] = [];
-        //});
+        d3.selectAll(".graph-group")
+            .each(function() {
+                let plotId = "#" + d3.select(this).node().getAttribute("id");
+                selectedTargets[plotId] = [];
+            });
+        let plotIds = Object.keys(selectedTargets);
 
-        //this.plotIds.forEach(function(plotId) {
+        plotIds.forEach(function(plotId) {
             d3.select(plotId).selectAll(".target-selector-group")
                 .each(function() {
                     let d = d3.select(this);
@@ -277,7 +273,7 @@ class Navigator {
                         metric + "." + id;
                     selectedTargets[plotId].push(target);
                 });
-        //});
+        });
 
         this.Plots.clearPlots();
         this.Plots.update(selectedTargets);

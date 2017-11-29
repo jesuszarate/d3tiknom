@@ -77,6 +77,11 @@ body {
     width: 100%;
 }
 
+.small-visualization {
+    min-height: 25rem;
+    width: 100%;
+}
+
 .loading-vis {
     width: 75%;
 }
