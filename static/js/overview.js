@@ -175,7 +175,10 @@ class TileChart {
                 }
                 return (colorScale(successes - total));
             })
-            .attr("height", height);
+            .attr("height", height)
+            .on("click", function (d) {
+                window.open("index.html?gubbin=" + d["gubbin"],"_self")
+            });
 
         let label = tile.append("text");
 
