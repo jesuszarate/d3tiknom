@@ -49,8 +49,6 @@ class Plots {
             });
         }
 
-        console.log(dotData);
-
         this.clearPlots();
         this.buildBoxPlot(boxData);
         this.buildStackTracePlot(stackTraceData);
@@ -152,9 +150,41 @@ class Plots {
         }
 
         let plot = this.initializeSvgPlot("#dot-plot", targets);
+
+        // create the x and y scales
+        let xScale = d3.scaleBand()
+            .domain(targets.map((_, i) => i))
+            .rangeRound([plot.width, 0])
+            .padding(0.1);
+
+        let yScale = d3.scaleLinear()
+            .domain([0, d3.max(targets, t => d3.max(t.data, e => e[0]))])
+            .rangeRound([plot.height, 0]);
+
+        // create the axes
+        plot.svg.select(".svg-plot").select(".x-axis")
+            .attr("transform", "translate(0," + plot.height + ")")
+            .call(d3.axisBottom(xScale).tickFormat((i) =>
+                    nameFromTarget(targets[i].target)))
+          .selectAll("text")
+            .attr("transform", "rotate(-15)")
+            .attr("x", -5)
+            .attr("y", 20)
+            .attr("dy", 0)
+            .attr("text-anchor", "end");
+
+        plot.svg.select(".svg-plot").select(".y-axis")
+            .call(d3.axisLeft(yScale).ticks(10));
+
         plot.svg.select(".data")
-            .append("text")
-            .text("TODO: not implemented");
+            .selectAll("circle")
+            .data(targets)
+            .enter()
+            .append("circle")
+            .attr("cx", (_, i) => xScale(i))
+            .attr("cy", (d) => yScale(d.data[d.data.length - 1][0]))
+            .attr("r", 5)
+            .attr("fill", (d) => this.colorScale(this.colorKeys.data[gubbinFromTarget(d.target)]));
     }
 
     initializeSvgPlot(plotId, targets) {

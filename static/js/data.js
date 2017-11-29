@@ -158,6 +158,11 @@ function gubbinFromTarget(target) {
     return parts.splice(0, parts.length - 2).join(".");
 }
 
+function nameFromTarget(target) {
+    let parts = target.split(".");
+    return parts[parts.length - 3];
+}
+
 class dataTable {
     constructor(data) {
         this.data = {};
