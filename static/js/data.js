@@ -45,7 +45,7 @@ class navigationTree {
             }
 
             let path = t.target.split(".");
-            let ptr = this.tree; 
+            let ptr = this.tree;
             for (let i = 0; i < path.length; i++) {
                 let childProp = path[i];
                 let position = path.slice(0, i + 1).join(".");
@@ -94,7 +94,7 @@ class navigationTree {
         pathStr = pathStr.replace(this.rootName(), "");
 
         let path = pathStr.split(".");
-        let ptr = this.tree; 
+        let ptr = this.tree;
         for (let i = 0; i < path.length; i++) {
             let childProp = path[i];
             if (childProp === "") {
@@ -123,6 +123,10 @@ class navigationTree {
     }
 }
 
+function gubbinFromTarget(target) {
+    let parts = target.split(".");
+    return parts.splice(0, parts.length - 2).join(".");
+}
 
 class dataTable {
     constructor(data) {
@@ -135,6 +139,29 @@ class dataTable {
 
             this.data[t.target] = t.datapoints;
         }
-        return this.data
+        return this.data;
+    }
+}
+
+
+class colorKeys {
+    constructor(data) {
+        this.data = {};
+        this.min = 0;
+        this.max = 0;
+        for (let i = this.min; i < data.length; i++) {
+            let t = data[i];
+            if (!validDatapoint(t.datapoints)) {
+                continue;
+            }
+
+            let gubbin = gubbinFromTarget(t.target);
+            if (this.data.hasOwnProperty(gubbin)) {
+                continue;
+            }
+
+            this.data[gubbin] = this.max;
+            this.max++;
+        }
     }
 }
