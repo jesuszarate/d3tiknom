@@ -1,4 +1,3 @@
-/** Class implementing the tileChart. */
 class Overview {
 
     /**
