@@ -184,7 +184,7 @@ class Overview {
             })
             .attr("height", height)
             .on("click", function (d) {
-                window.open("scatter.html?gubbin=" + d["gubbin"],"_self")
+                window.open("linechart.html?gubbin=" + d["gubbin"],"_self")
             });
 
         let label = tile.append("text");
