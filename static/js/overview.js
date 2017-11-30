@@ -12,8 +12,7 @@ class Overview {
         let svgBounds = divTiles.node().getBoundingClientRect();
         this.svgWidth = svgBounds.width - this.margin.left - this.margin.right;
         this.svgHeight = this.svgWidth / 2;
-        let legendHeight = 150;
-        //add the svg to the div
+        let legendHeight = 700;
         let legend = d3.select("#legend").classed("content", true);
 
         //creates svg elements within the div
@@ -81,47 +80,16 @@ class Overview {
         }, this);
     }
 
-    /**
-     * Renders the HTML content for tool tip.
-     *
-     * @param tooltip_data information that needs to be populated in the tool tip
-     * @return text HTML content for tool tip
-     */
     tooltip_render(tooltip_data) {
         let text = "<h2 >" + tooltip_data.gubbin + "</h2>";
         text += "<ul>";
 
-        // if (tooltip_data.attr.total !== undefined) {
-        //     text += "<li>" + "Total" + ":\t\t" + tooltip_data.attr.total + "</li>";
-        // }
-        // if (tooltip_data.attr.successes !== undefined) {
-        //     text += "<li>" + "Successes" + ":\t\t" + tooltip_data.attr.successes + "</li>";
-        // }
-        // if (tooltip_data.attr.failures !== undefined) {
-        //     text += "<li>" + "Failures" + ":\t\t" + tooltip_data.attr.failures + "</li>";
-        // }
-        // if (tooltip_data.attr.errors !== undefined) {
-        //     text += "<li>" + "Errors" + ":\t\t" + tooltip_data.attr.errors + "</li>";
-        // }
-        //
-        // if (tooltip_data.attr.sum !== undefined) {
-        //     text += "<li>" + "Sum" + ":\t\t" + tooltip_data.attr.sum + "</li>";
-        // }
-        //
-        // if (tooltip_data.attr.high !== undefined) {
-        //     text += "<li>" + "High" + ":\t\t" + tooltip_data.attr.high + "</li>";
-        // }
-        //
-        // if (tooltip_data.attr.low !== undefined) {
-        //     text += "<li>" + "low" + ":\t\t" + tooltip_data.attr.low + "</li>";
-        // }
-
         this.datapoints.forEach(function (d) {
             if (tooltip_data.attr[d] !== undefined) {
-                if(d === "successes") {
+                if (d === "successes") {
                     text += "<li class='successful'>" + d.toUpperCase() + ":\t\t" + tooltip_data.attr[d] + "</li>";
                 }
-                else if(d === "failures") {
+                else if (d === "failures") {
                     text += "<li class='failure'>" + d.toUpperCase() + ":\t\t" + tooltip_data.attr[d] + "</li>";
                 }
                 else {
@@ -129,23 +97,17 @@ class Overview {
                 }
             }
         });
-
         text += "</ul>";
 
         if (this.tipWindowOpen) {
             text += "<form action=\"linechart.html\" method=\"GET\">" +
                 "  <input type=\"hidden\" name=\"gubbin\" value=\"" + tooltip_data.path + "\" />" +
-                "  <input type=\"submit\" value=\"View\"/>" +
+                '<button class="btn btn-primary btn-block">View</button>' +
                 "</form>";
         }
         return text;
     }
 
-    /**
-     * Creates tiles and tool tip for each state, legend for encoding the color scale information.
-     *
-     * @param data election data for the year selected
-     */
     update() {
 
         this.maxColumns = 10;
@@ -156,10 +118,11 @@ class Overview {
         let width = this.svgWidth / this.maxColumns;
         let height = this.svgHeight / this.maxRows;
 
+
         let tipMouseOver = d3.tip().attr('class', 'd3-tip')
-            .direction('se')
+            .direction('s')
             .offset(function () {
-                return [0, 0];
+                return [0, 100];
             })
             .html((d) => {
                 return this.tooltip_render(d);
@@ -203,29 +166,60 @@ class Overview {
 
         this.drawTile(tileEnter, this.colorScale, height, width);
         tile.merge(tileEnter);
+
+        this.drawCircles();
     };
+
+    drawCircles() {
+        //let data = [3,8,5,2,8,9,2];
+        let ref = this;
+        this.legendSvg.selectAll('circle')
+            .data(this.tileData)
+            .enter()
+            .append('circle')
+            .attr("r", function (d, i) {
+                if (d.attr.total !== undefined) {
+                    return d.attr.total / 100;
+                }
+                return 0;
+            })
+            .attr("cx", function (d, i) {
+                return i * 50 + 30;
+            })
+            .attr("cy", function (d) {
+                if (d.attr.total !== undefined) {
+                    return (d.attr.total / 100);
+                }
+                return 0;
+            })
+            .attr("fill", function (d, i) {
+                return ref.scale(d, ref.colorScale);
+            });
+
+    }
+
+    drawLegend() {
+        this.legendSvg.append("g")
+            .attr("class", "legendQuantile")
+            .attr("transform", "translate(0,50)");
+
+        let legendQuantile = d3.legendColor()
+            .shapeWidth(100)
+            .cells(10)
+            .orient('horizontal')
+            .scale(this.colorScale);
+
+        this.legendSvg.select(".legendQuantile")
+            .call(legendQuantile);
+    }
 
     drawTile(tile, colorScale, height, width) {
 
-        let reference = this;
+        let ref = this;
         tile.append("rect")
             .attr("width", width)
             .style("fill", function (d) {
-                let successes = d.attr["successes"];
-                let failures = d.attr["failures"];
-                let total = d.attr["total"];
-
-                if (total === undefined) {
-                    total = 1;
-                }
-                if (successes === undefined) {
-                    successes = 0;
-                }
-                if (failures === undefined) {
-                    failures = 0;
-                }
-
-                return (colorScale(((successes / total) * 100)));// - (failures/total)*100) ));
+                return ref.scale(d, ref.colorScale);
             })
             .attr("height", height);
 
@@ -247,6 +241,22 @@ class Overview {
             .attr("class", function (d) {
                 return "tilestext";
             });
+    }
+
+    scale(d, colorScale){
+        let successes = d.attr["successes"];
+        let failures = d.attr["failures"];
+        let total = d.attr["total"];
+        if (total === undefined) {
+            total = 1;
+        }
+        if (successes === undefined) {
+            successes = 0;
+        }
+        if (failures === undefined) {
+            failures = 0;
+        }
+        return (colorScale(((successes / total) * 100)));// - (failures/total)*100) ));
     }
 
 }

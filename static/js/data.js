@@ -7,10 +7,10 @@ d3.json("data/monkit_data.json", function (error, data) {
         let navigator = new Navigator(data);
     } catch (_) {}
 
-    try {
+    // try {
         let overview = new Overview(data);
         overview.update();
-    } catch (_) {}
+    // } catch (_) {}
 
     d3.select("#loading-gif").remove();
 });
@@ -43,7 +43,6 @@ function validDatapoint(datapoints) {
     }
     return dataFound;
 }
-
 
 // indicates that the target is a data type we're interested in.
 function interestedInTarget(target) {
