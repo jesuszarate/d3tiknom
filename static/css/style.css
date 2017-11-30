@@ -78,7 +78,7 @@ body {
 }
 
 .small-visualization {
-    min-height: 25rem;
+    min-height: 30rem;
     width: 100%;
 }
 
@@ -131,7 +131,13 @@ body {
     z-index: 10;
     cursor: move;
     background-color: #fff;
-    padding: 20px;
+    min-width: 300px;
+    text-align: center;
+    left: 100px;
+}
+
+.legend table {
+    margin: 20px;
 }
 
 polyline {
@@ -151,4 +157,21 @@ polyline {
     fill: white;
     stroke-width: 0.1px;
     /*stroke: #e5e5e5;*/
+}
+
+.legend-minimize {
+    height: 60px;
+    overflow: hidden;
+}
+
+.legend-shower {
+    float: right;
+    cursor: pointer;
+    padding: 20px;
+}
+
+.legend-hider {
+    float: left;
+    cursor: pointer;
+    padding: 20px;
 }

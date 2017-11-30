@@ -5,9 +5,12 @@ class Plots {
         this.colorScale = colorScale;
 
         // initializes the svg elements required for this chart
-        this.margin = {top: 20, right: 20, bottom: 200, left: 100};
+        this.margin = {top: 20, right: 20, bottom: 100, left: 75};
 
         this.plotIds = ["#data-plot"];
+
+        d3.select(".visualization")
+            .attr("style", "height: " + (window.innerHeight - 75) + "px;");
     }
 
     update(selectedTargets) {

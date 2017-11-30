@@ -64,6 +64,16 @@ class Navigator {
             ref.updatePlotSelectors();
         });
 
+        d3.selectAll(".legend-hider").on("click", function() {
+            let p = d3.select(d3.select(this).node().parentElement);
+            p.classed("legend-minimize", true);
+        });
+
+        d3.selectAll(".legend-shower").on("click", function() {
+            let p = d3.select(d3.select(this).node().parentElement);
+            p.classed("legend-minimize", false);
+        });
+
         let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
         d3.selectAll(".legend").on("mousedown", function() {
             let elmnt = d3.select(this).node();
@@ -164,7 +174,6 @@ class Navigator {
                 .attr("id", childKey)
                 .on("click", function () {
                     let ele = d3.select(this);
-                    let name = ele.text();
                     let key = ele.node().id;
                     ref.clear();
                     let node = ref.dataTree.nodeFromKey(key);
@@ -212,7 +221,21 @@ class Navigator {
 
             let gubParts = gub.gubbin.split(".");
             targetGroup.append("td")
-                .text(gubParts[gubParts.length - 1]);
+                .text(gubParts[gubParts.length - 1])
+                .on("click", function() {
+                    let ele = d3.select(d3.select(this).node().parentElement);
+                    let key = ele.attr("x-gubbin");
+                    ref.clear();
+                    let node = ref.dataTree.nodeFromKey(key);
+                    if (node.hasOwnProperty("gubbin")) {
+                        ref.updateSelectedGubbins(key);
+                    }
+                    ref.updateSelectedPaths(key);
+                    ref.update(ref.divNavigator, ref.dataTree.tree);
+                    if (node.hasOwnProperty("gubbin")) {
+                        ref.updatePlotSelectors();
+                    }
+                });
 
             let metricSelect = targetGroup
                 .append("td")

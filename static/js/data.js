@@ -5,17 +5,12 @@ d3.json("data/monkit_data.json", function (error, data) {
 
     try {
         let navigator = new Navigator(data);
-    }
-    catch (err){
-        console.log('Navigator not used');
-    }
-    try{
+    } catch (_) {}
+
+    try {
         let overview = new Overview(data);
         overview.update();
-    }
-    catch (err){
-        console.log('Overview not used');
-    }
+    } catch (_) {}
 
     d3.select("#loading-gif").remove();
 });
@@ -52,6 +47,7 @@ function validDatapoint(datapoints) {
 
 // indicates that the target is a data type we're interested in.
 function interestedInTarget(target) {
+    return true;
     for (let i = 0; i < Globals.WhitelistedInterests.length; i++) {
         let ist = "." + Globals.WhitelistedInterests[i] + ".";
         if (target.indexOf(ist) > -1) {

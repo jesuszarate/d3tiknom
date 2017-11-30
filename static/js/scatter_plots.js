@@ -5,66 +5,66 @@ class Plots {
         this.colorScale = colorScale;
 
         // initializes the svg elements required for this chart
-        this.margin = {top: 20, right: 20, bottom: 200, left: 100};
+        this.margin = {top: 20, right: 20, bottom: 100, left: 75};
 
-        this.plotIds = ["#box-plot", "#stack-trace-plot", "#comparison-plot",
-            "#dot-plot"];
+        this.plotIds = ["#dot-plot-1", "#dot-plot-2", "#dot-plot-3",
+            "#dot-plot-4"];
+
+        d3.select(".visualization")
+            .attr("style", "height: " + ((window.innerHeight - 75) / 2) + "px;");
     }
 
     update(selectedTargets) {
-        let boxTargets = selectedTargets["#box-plot"];
-        let stackTraceTargets = selectedTargets["#stack-trace-plot"];
-        let comparisonTargets = selectedTargets["#comparison-plot"];
-        let dotTargets = selectedTargets["#dot-plot"];
+        let dot1Targets = selectedTargets[this.plotIds[0]];
+        let dot2Targets = selectedTargets[this.plotIds[1]];
+        let dot3Targets = selectedTargets[this.plotIds[2]];
+        let dot4Targets = selectedTargets[this.plotIds[3]];
 
-        let boxData = [];
-        for (let i = 0; boxTargets && i < boxTargets.length; i++) {
-            boxData.push({
-                "target": boxTargets[i],
-                "data":   this.data[boxTargets[i]]
+        let dot1Data = [];
+        for (let i = 0; dot1Targets && i < dot1Targets.length; i++) {
+            dot1Data.push({
+                "target": dot1Targets[i],
+                "data":   this.data[dot1Targets[i]]
             });
         }
 
-        let stackTraceData = [];
-        for (let i = 0; stackTraceTargets && i < stackTraceTargets.length; i++) {
-            stackTraceData.push({
-                "target": stackTraceTargets[i],
-                "data":   this.data[stackTraceTargets[i]]
+        let dot2Data = [];
+        for (let i = 0; dot2Targets && i < dot2Targets.length; i++) {
+            dot2Data.push({
+                "target": dot2Targets[i],
+                "data":   this.data[dot2Targets[i]]
             });
         }
 
-        let comparisonData = [];
-        for (let i = 0; comparisonTargets && i < comparisonTargets.length; i++) {
-            comparisonData.push({
-                "target": comparisonTargets[i],
-                "data":   this.data[comparisonTargets[i]]
+        let dot3Data = [];
+        for (let i = 0; dot3Targets && i < dot3Targets.length; i++) {
+            dot3Data.push({
+                "target": dot3Targets[i],
+                "data":   this.data[dot3Targets[i]]
             });
         }
 
-        let dotData = [];
-        for (let i = 0; dotTargets && i < dotTargets.length; i++) {
-            dotData.push({
-                "target": dotTargets[i],
-                "data":   this.data[dotTargets[i]]
+        let dot4Data = [];
+        for (let i = 0; dot4Targets && i < dot4Targets.length; i++) {
+            dot4Data.push({
+                "target": dot4Targets[i],
+                "data":   this.data[dot4Targets[i]]
             });
         }
 
         this.clearPlots();
-        this.buildBoxPlot(boxData);
-        this.buildStackTracePlot(stackTraceData);
-        this.buildComparisonPlot(comparisonData);
-        this.buildDotPlot(dotData);
+        this.buildDotPlot(this.plotIds[0], dot1Data);
+        this.buildDotPlot(this.plotIds[1], dot2Data);
+        this.buildDotPlot(this.plotIds[2], dot3Data);
+        this.buildDotPlot(this.plotIds[3], dot4Data);
     }
 
     clearPlots() {
         this.plotIds.forEach(function(plotId) {
             let data = d3.select(plotId)
                 .select(".data");
-            data.selectAll("rect").remove();
-            data.selectAll("circle").remove();
             data.selectAll("line").remove();
-            data.selectAll("rect").remove();
-            data.selectAll("polyline").remove();
+            data.selectAll("text").remove();
 
             let xaxis = d3.select(plotId)
                 .select(".x-axis");
@@ -78,92 +78,34 @@ class Plots {
         });
     }
 
-    buildBoxPlot(targets) {
+    buildDotPlot(plotId, targets) {
         if (targets.length == 0) {
             return;
         }
 
-        let plot = this.initializeSvgPlot("#box-plot", targets);
-        plot.svg.select(".data")
-            .append("text")
-            .text("TODO: not implemented");
-    }
+        let plotSvg = d3.select(plotId);
+        let computedSize = plotSvg.node().getBoundingClientRect();
+        let width = computedSize.width - this.margin.left -
+            this.margin.right;
+        let height = computedSize.height - this.margin.top -
+            this.margin.bottom;
 
-    buildStackTracePlot(targets) {
-        if (targets.length == 0) {
-            return;
-        }
-
-        let plot = this.initializeSvgPlot("#stack-trace-plot", targets);
-        plot.svg.select(".data")
-            .append("text")
-            .text("TODO: not implemented");
-    }
-
-    buildComparisonPlot(targets) {
-        if (targets.length == 0) {
-            return;
-        }
-
-        let ref = this;
-        let plot = this.initializeSvgPlot("#comparison-plot", targets);
-
-        // create the axes
-        plot.svg.select(".svg-plot").select(".x-axis")
-            .attr("transform", "translate(0," + plot.height + ")")
-            .call(d3.axisBottom(plot.xScale).tickFormat(function(i) {
-                let date = new Date(i * 1000);
-                return date.toGMTString();
-            }))
-          .selectAll("text")
-            .attr("transform", "rotate(-15)")
-            .attr("x", -5)
-            .attr("y", 20)
-            .attr("dy", 0)
-            .attr("text-anchor", "end");
-
-        plot.svg.select(".svg-plot").select(".y-axis")
-            .call(d3.axisLeft(plot.yScale).ticks(10));
-
-        targets.forEach(function(target, i) {
-            let polylinePoints = "";
-            target.data.forEach(function(d) {
-                polylinePoints += plot.xScale(d[1]) + "," +
-                    plot.yScale(d[0]) + " ";
-            });
-
-            let gubbin = gubbinFromTarget(target.target);
-
-            // create the points
-            let points = plot.svg.select(".data")
-                .append("polyline")
-                .attr("class", "gubbin-selected")
-                .attr("stroke",
-                    ref.colorScale(ref.colorKeys.data[gubbin]))
-                .attr("points", polylinePoints);
-        });
-    }
-
-    buildDotPlot(targets) {
-        if (targets.length == 0) {
-            return;
-        }
-
-        let plot = this.initializeSvgPlot("#dot-plot", targets);
+        plotSvg.select(".svg-plot").attr("transform", "translate(" +
+            this.margin.left + "," + this.margin.top + ")");
 
         // create the x and y scales
         let xScale = d3.scaleBand()
             .domain(targets.map((_, i) => i))
-            .rangeRound([plot.width, 0])
-            .padding(0.1);
+            .range([0, width])
+            .padding(1.0);
 
         let yScale = d3.scaleLinear()
             .domain([0, d3.max(targets, t => d3.max(t.data, e => e[0]))])
-            .rangeRound([plot.height, 0]);
+            .rangeRound([height, 0]);
 
         // create the axes
-        plot.svg.select(".svg-plot").select(".x-axis")
-            .attr("transform", "translate(0," + plot.height + ")")
+        plotSvg.select(".svg-plot").select(".x-axis")
+            .attr("transform", "translate(0," + height + ")")
             .call(d3.axisBottom(xScale).tickFormat((i) =>
                     nameFromTarget(targets[i].target)))
           .selectAll("text")
@@ -173,48 +115,30 @@ class Plots {
             .attr("dy", 0)
             .attr("text-anchor", "end");
 
-        plot.svg.select(".svg-plot").select(".y-axis")
+        plotSvg.select(".svg-plot").select(".y-axis")
             .call(d3.axisLeft(yScale).ticks(10));
 
-        plot.svg.select(".data")
-            .selectAll("circle")
+        plotSvg.select(".data")
+            .selectAll("line")
             .data(targets)
             .enter()
-            .append("circle")
-            .attr("cx", (_, i) => xScale(i))
-            .attr("cy", (d) => yScale(d.data[d.data.length - 1][0]))
-            .attr("r", 5)
-            .attr("fill", (d) => this.colorScale(this.colorKeys.data[gubbinFromTarget(d.target)]));
-    }
+            .append("line")
+            .attr("x1", (_, i) => xScale(i))
+            .attr("x2", (_, i) => xScale(i))
+            .attr("y1", yScale(0))
+            .attr("y2", (d) => yScale(d.data[d.data.length - 1][0]))
+            .attr("stroke-width", 20)
+            .attr("stroke", (d) => this.colorScale(
+                    this.colorKeys.data[gubbinFromTarget(d.target)]));
 
-    initializeSvgPlot(plotId, targets) {
-        let plotSvg = d3.select(plotId);
-        let computedSize = plotSvg.node().getBoundingClientRect();
-        let chartWidth = computedSize.width - this.margin.left -
-            this.margin.right;
-        let chartHeight = computedSize.height - this.margin.top -
-            this.margin.bottom;
-
-        plotSvg.select(".svg-plot").attr("transform", "translate(" +
-            this.margin.left + "," + this.margin.top + ")");
-
-        // create the x and y scales; make sure to leave room for the axes
-        let xScale = d3.scaleLinear()
-            .domain([d3.min(targets, d => d3.min(d.data, g => g[1])),
-                    d3.max(targets, d => d3.max(d.data, g => g[1]))])
-            .rangeRound([0, chartWidth]);
-
-        let yScale = d3.scaleLinear()
-            .domain([d3.max(targets, d => d3.max(d.data, g => g[0])),
-                     d3.min(targets, d => d3.min(d.data, g => g[0]))])
-            .rangeRound([0, chartHeight]);
-
-        return {
-            svg: plotSvg,
-            width: chartWidth,
-            height: chartHeight,
-            xScale: xScale,
-            yScale: yScale,
-        };
+        plotSvg.select(".data")
+            .selectAll("text")
+            .data(targets)
+            .enter()
+            .append("text")
+            .style("fill", "#fff")
+            .attr("x", (_, i) => xScale(i) - 10)
+            .attr("y", (d) => yScale(0) - 5)
+            .text((d) => d.data[d.data.length - 1][0]);
     }
 }
