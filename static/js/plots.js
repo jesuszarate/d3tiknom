@@ -7,56 +7,56 @@ class Plots {
         // initializes the svg elements required for this chart
         this.margin = {top: 20, right: 20, bottom: 100, left: 75};
 
-        this.plotIds = ["#dot-plot-1", "#dot-plot-2", "#dot-plot-3",
-            "#dot-plot-4"];
+        this.plotIds = ["#plot-1", "#plot-2", "#plot-3",
+            "#plot-4"];
 
         d3.select(".visualization")
             .attr("style", "height: " + ((window.innerHeight - 75) / 2) + "px;");
     }
 
     update(selectedTargets) {
-        let dot1Targets = selectedTargets[this.plotIds[0]];
-        let dot2Targets = selectedTargets[this.plotIds[1]];
-        let dot3Targets = selectedTargets[this.plotIds[2]];
-        let dot4Targets = selectedTargets[this.plotIds[3]];
+        let plot1Targets = selectedTargets[this.plotIds[0]];
+        let plot2Targets = selectedTargets[this.plotIds[1]];
+        let plot3Targets = selectedTargets[this.plotIds[2]];
+        let plot4Targets = selectedTargets[this.plotIds[3]];
 
-        let dot1Data = [];
-        for (let i = 0; dot1Targets && i < dot1Targets.length; i++) {
-            dot1Data.push({
-                "target": dot1Targets[i],
-                "data":   this.data[dot1Targets[i]]
+        let plot1Data = [];
+        for (let i = 0; plot1Targets && i < plot1Targets.length; i++) {
+            plot1Data.push({
+                "target": plot1Targets[i],
+                "data":   this.data[plot1Targets[i]]
             });
         }
 
-        let dot2Data = [];
-        for (let i = 0; dot2Targets && i < dot2Targets.length; i++) {
-            dot2Data.push({
-                "target": dot2Targets[i],
-                "data":   this.data[dot2Targets[i]]
+        let plot2Data = [];
+        for (let i = 0; plot2Targets && i < plot2Targets.length; i++) {
+            plot2Data.push({
+                "target": plot2Targets[i],
+                "data":   this.data[plot2Targets[i]]
             });
         }
 
-        let dot3Data = [];
-        for (let i = 0; dot3Targets && i < dot3Targets.length; i++) {
-            dot3Data.push({
-                "target": dot3Targets[i],
-                "data":   this.data[dot3Targets[i]]
+        let plot3Data = [];
+        for (let i = 0; plot3Targets && i < plot3Targets.length; i++) {
+            plot3Data.push({
+                "target": plot3Targets[i],
+                "data":   this.data[plot3Targets[i]]
             });
         }
 
-        let dot4Data = [];
-        for (let i = 0; dot4Targets && i < dot4Targets.length; i++) {
-            dot4Data.push({
-                "target": dot4Targets[i],
-                "data":   this.data[dot4Targets[i]]
+        let plot4Data = [];
+        for (let i = 0; plot4Targets && i < plot4Targets.length; i++) {
+            plot4Data.push({
+                "target": plot4Targets[i],
+                "data":   this.data[plot4Targets[i]]
             });
         }
 
         this.clearPlots();
-        this.buildDotPlot(this.plotIds[0], dot1Data);
-        this.buildDotPlot(this.plotIds[1], dot2Data);
-        this.buildDotPlot(this.plotIds[2], dot3Data);
-        this.buildDotPlot(this.plotIds[3], dot4Data);
+        this.buildPlot(this.plotIds[0], plot1Data);
+        this.buildPlot(this.plotIds[1], plot2Data);
+        this.buildPlot(this.plotIds[2], plot3Data);
+        this.buildPlot(this.plotIds[3], plot4Data);
     }
 
     clearPlots() {
@@ -78,7 +78,7 @@ class Plots {
         });
     }
 
-    buildDotPlot(plotId, targets) {
+    buildPlot(plotId, targets) {
         if (targets.length == 0) {
             return;
         }

@@ -221,6 +221,7 @@ class Navigator {
 
             let gubParts = gub.gubbin.split(".");
             targetGroup.append("td")
+                .attr("class", "gubbin-name")
                 .text(gubParts[gubParts.length - 1])
                 .on("click", function() {
                     let ele = d3.select(d3.select(this).node().parentElement);

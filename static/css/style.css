@@ -140,6 +140,10 @@ body {
     margin: 20px;
 }
 
+.legend td.gubbin-name {
+    cursor: pointer;
+}
+
 polyline {
     fill: none;
     stroke-width: 3px;
