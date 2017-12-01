@@ -1,3 +1,5 @@
+let overview;
+
 d3.json("data/monkit_data.json", function (error, data) {
     if (error) {
         throw error;
@@ -7,15 +9,19 @@ d3.json("data/monkit_data.json", function (error, data) {
         let navigator = new Navigator(data);
     } catch (_) {}
 
-    try {
-        let overview = new Overview(data);
-        overview.update();
-    } catch (_) {}
+    // try {
+        overview = new Overview(data);
+        overview.update("bubble");
+    // } catch (_) {}
 
-    let circ = new circleoverview(data);
-    circ.update();
+    // let circ = new circleoverview(data);
+    // circ.update();
     d3.select("#loading-gif").remove();
 });
+
+function viewType(type){
+    overview.update(type)
+}
 
 
 // variables that are globally available

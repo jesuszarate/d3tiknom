@@ -11,26 +11,17 @@ class Overview {
         let svgBounds = divTiles.node().getBoundingClientRect();
         this.svgWidth = svgBounds.width - this.margin.left - this.margin.right;
         this.svgHeight = this.svgWidth / 2;
-        let legendHeight = 700;
-        let legend = d3.select("#legend").classed("content", true);
+        // let legendHeight = 700;
+        // let legend = d3.select("#legend").classed("content", true);
 
-        //creates svg elements within the div
-        this.legendSvg = legend.append("svg")
-            .attr("width", this.svgWidth)
-            .attr("height", legendHeight)
-            .attr("transform", "translate(" + this.margin.left + ",0)");
+        this.padding = 100;
+        this.min_padding = 100;
+        this.max_padding = 500;
+
         this.svg = divTiles.append("svg")
             .attr("width", this.svgWidth)
             .attr("height", this.svgHeight)
             .attr("transform", "translate(" + this.margin.left + ",0)");
-
-        let domain = [0, 100];
-        let range = ["#860308", "#a50f15", "#de2d26", "#fb6a4a", "#fc9272", "#fcbba1", "#c6dbef", "#9ecae1", "#6baed6",
-            "#3182bd", "#08519c", "#063e78"];
-
-        this.colorScale = d3.scaleQuantile()
-            .domain(domain)
-            .range(range);
 
         this.tipWindowOpen = false;
         this.datapoints = ["successes", "failures", "total", "errors", "high", "low", "sum", "count", "avg", "min", "max"];
@@ -107,7 +98,18 @@ class Overview {
         return text;
     }
 
-    update() {
+    update(type) {
+
+        this.clear();
+        if (type === "tiles") {
+            this.drawTileVis();
+        }
+        else if (type === "bubble") {
+            this.drawBubbleVis();
+        }
+    };
+
+    drawTileVis() {
 
         this.maxColumns = 10;
         this.maxRows = 10;
@@ -165,51 +167,6 @@ class Overview {
 
         this.drawTile(tileEnter, this.colorScale, height, width);
         tile.merge(tileEnter);
-
-        this.drawCircles();
-    };
-
-    drawCircles() {
-        //let data = [3,8,5,2,8,9,2];
-        let ref = this;
-        this.legendSvg.selectAll('circle')
-            .data(this.tileData)
-            .enter()
-            .append('circle')
-            .attr("r", function (d, i) {
-                if (d.attr.total !== undefined) {
-                    return d.attr.total / 100;
-                }
-                return 0;
-            })
-            .attr("cx", function (d, i) {
-                return i * 50 + 30;
-            })
-            .attr("cy", function (d) {
-                if (d.attr.total !== undefined) {
-                    return (d.attr.total / 100);
-                }
-                return 0;
-            })
-            .attr("fill", function (d, i) {
-                return ref.scale(d, ref.colorScale);
-            });
-
-    }
-
-    drawLegend() {
-        this.legendSvg.append("g")
-            .attr("class", "legendQuantile")
-            .attr("transform", "translate(0,50)");
-
-        let legendQuantile = d3.legendColor()
-            .shapeWidth(100)
-            .cells(10)
-            .orient('horizontal')
-            .scale(this.colorScale);
-
-        this.legendSvg.select(".legendQuantile")
-            .call(legendQuantile);
     }
 
     drawTile(tile, colorScale, height, width) {
@@ -218,7 +175,7 @@ class Overview {
         tile.append("rect")
             .attr("width", width)
             .style("fill", function (d) {
-                return ref.scale(d, ref.colorScale);
+                return ref.scale(d);
             })
             .attr("height", height);
 
@@ -242,7 +199,99 @@ class Overview {
             });
     }
 
-    scale(d, colorScale){
+    drawBubbleVis() {
+        let ref = this;
+        let nodes = [];
+
+        nodes = this.tileData.filter(function (d) {
+            return d.attr.total !== undefined;
+        });
+        nodes = nodes.map(function (d) {
+            return {
+                r: d.attr.total / 200
+            };
+        });
+        nodes.unshift({r: 200});
+
+        let root = nodes[0];
+        let color = d3.scaleOrdinal().range(d3.schemeCategory20);
+
+        root.radius = 0;
+        root.fixed = true;
+
+        const forceX = d3.forceX(this.svgWidth / 2).strength(0.015);
+        const forceY = d3.forceY(this.svgHeight / 2).strength(0.015);
+
+        let force = d3.forceSimulation()
+            .velocityDecay(0.2)
+            .force("x", forceX)
+            .force("y", forceY)
+            .force("charge", d3.forceManyBody())
+            .force("collide", d3.forceCollide().radius(function (d) {
+                if (d === root) {
+                    return d.r;
+                }
+                return d.r + 0.5;
+                // return collide(0);
+
+            }).iterations(5))
+            .nodes(nodes).on("tick", ticked);
+
+
+        let circle = this.svg.selectAll("circle")
+            .data(nodes.slice(1))
+            .enter().append("circle")
+            .attr("r", function(d) {
+                return d.r;
+            })
+            .style("fill", function(d, i) {
+                if(d !== root) {
+                    return color(i % 3);
+                }
+            });
+
+
+        function ticked() {
+            circle
+                .attr("cx", function (d) {
+                    try {
+                        return d.x;
+                    }
+                    catch (_){
+                        console.log("here");
+                    }
+                })
+                .attr("cy", function (d) {
+                    try {
+                    return d.y;
+                    }
+                    catch (_){
+                        console.log("here");
+                    }
+                });
+                // .on("mouseover", function (d) {
+                //     console.log(d.data);
+                // });
+        }
+
+        // this.svg.on("mousemove", function() {
+        //     let p1 = d3.mouse(this);
+        //     root.fx = p1[0];
+        //     root.fy = p1[1];
+        //     force.alphaTarget(0.3).restart();//reheat the simulation
+        // });
+
+    }
+    scale(d) {
+
+        let domain = [0, 100];
+        let range = ["#860308", "#a50f15", "#de2d26", "#fb6a4a", "#fc9272", "#fcbba1", "#c6dbef", "#9ecae1", "#6baed6",
+            "#3182bd", "#08519c", "#063e78"];
+
+        let colorScale = d3.scaleQuantile()
+            .domain(domain)
+            .range(range);
+
         let successes = d.attr["successes"];
         let failures = d.attr["failures"];
         let total = d.attr["total"];
@@ -258,4 +307,9 @@ class Overview {
         return (colorScale(((successes / total) * 100)));// - (failures/total)*100) ));
     }
 
+    clear() {
+        this.svg.selectAll("g").remove();
+    }
+
 }
+
