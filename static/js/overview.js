@@ -24,7 +24,10 @@ class Overview {
             .attr("transform", "translate(" + this.margin.left + ",0)");
 
         this.tipWindowOpen = false;
-        this.tiledatapoints = ["successes", "failures", "total", "errors", "high", "low", "sum", "count", "avg", "min", "max"];
+        this.tiledatapoints = ["successes", "failures",
+            "success_times_count", "success_times_sum", "success_times_max", "success_times_rmax", "success_times_min",
+            "val", "total", "errors", "high", "highwater", "lowwater", "low",
+            "sum", "count", "avg", "min", "max"];
         this.bubbledatapoints = ["total", "high", "low", "sum", "count", "avg", "min", "max"];
         this.getData(data);
     };
@@ -91,11 +94,31 @@ class Overview {
         text += "</ul>";
 
         if (this.tipWindowOpen) {
-            text += "<form action=\"linechart.html\" method=\"GET\">" +
-                "  <input type=\"hidden\" name=\"gubbin\" value=\"" + tooltip_data.path + "\" />" +
-                '<button class="btn btn-primary btn-block">View</button>' +
+            // text += "<form action=\"linechart.html\" method=\"GET\">" +
+            //     "  <input type=\"hidden\" name=\"gubbin\" value=\"" + tooltip_data.path + "\" />" +
+            //     '<button class="btn btn-primary btn-block">View</button>' +
+            //     "</form>";
+
+            text +=
+
+                '<button class="btn btn-primary btn-block dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+                'View' +
+                '  </button>\n' +
+                '  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">' +
+
+                "<form action=\"linechart.html\" method=\"GET\">" +
+                '  <input type="hidden" name="gubbin" value="' + tooltip_data.path + '" />' +
+                '  <button class="dropdown-item"><a>Linechart</a></button>' +
+                "</form>" +
+
+                "<form action=\"plots.html\" method=\"GET\">" +
+                '  <input type="hidden" name="gubbin" value="' + tooltip_data.path + '" />' +
+                '  <button class="dropdown-item btn-block">Plots</button>' +
+                '  </div>' +
                 "</form>";
+
         }
+
         return text;
     }
 

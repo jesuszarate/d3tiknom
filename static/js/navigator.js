@@ -41,22 +41,24 @@ class Navigator {
 
         if(preselection === null) {
             let searchTerm = getParameterByName("search");
-            for(let d of Object.keys(this.data)){
-                if (d.toLowerCase().includes(searchTerm.toLowerCase())) {
+            if(searchTerm !== null) {
+                for (let d of Object.keys(this.data)) {
+                    if (d.toLowerCase().includes(searchTerm.toLowerCase())) {
 
-                    let selection = null;
-                    let levels = d.split(".");
-                    levels.forEach(function(_, i) {
-                        if (i < levels.length - 1) {
-                            selection = levels.slice(0, i).join(".");
+                        let selection = null;
+                        let levels = d.split(".");
+                        levels.forEach(function (_, i) {
+                            if (i < levels.length - 1) {
+                                selection = levels.slice(0, i).join(".");
+                            }
+                        }, this);
+
+                        if (d = Object.keys(this.data)[0]) {
+                            preselection = selection;
                         }
-                    }, this);
-
-                    if(d = Object.keys(this.data)[0]){
-                        preselection = selection;
-                    }
-                    if(!this.selectedGubbins.includes(selection)) {
-                        this.selectedGubbins.push(selection);
+                        if (!this.selectedGubbins.includes(selection)) {
+                            this.selectedGubbins.push(selection);
+                        }
                     }
                 }
             }
