@@ -24,7 +24,8 @@ class Overview {
             .attr("transform", "translate(" + this.margin.left + ",0)");
 
         this.tipWindowOpen = false;
-        this.datapoints = ["successes", "failures", "total", "errors", "high", "low", "sum", "count", "avg", "min", "max"];
+        this.tiledatapoints = ["successes", "failures", "total", "errors", "high", "low", "sum", "count", "avg", "min", "max"];
+        this.bubbledatapoints = ["total", "high", "low", "sum", "count", "avg", "min", "max"];
         this.getData(data);
     };
 
@@ -60,7 +61,7 @@ class Overview {
                 this.tileData.push(point);
             }
 
-            this.datapoints.forEach(function (dataname) {
+            this.tiledatapoints.forEach(function (dataname) {
                 if (d.indexOf("." + dataname) > -1) {
                     let datapoint = this.data[d];
                     this.tileData[index].attr[dataname] = datapoint[datapoint.length - 1][0]
@@ -70,11 +71,11 @@ class Overview {
         }, this);
     }
 
-    tooltip_render(tooltip_data) {
+    tooltip_render(tooltip_data, display_data) {
         let text = "<h2 >" + tooltip_data.gubbin + "</h2>";
         text += "<ul>";
 
-        this.datapoints.forEach(function (d) {
+        display_data.forEach(function (d) {
             if (tooltip_data.attr[d] !== undefined) {
                 if (d === "successes") {
                     text += "<li class='successful'>" + d.toUpperCase() + ":\t\t" + tooltip_data.attr[d] + "</li>";
@@ -99,7 +100,6 @@ class Overview {
     }
 
     update(type) {
-
 
         if (type === "tiles") {
             this.clearBubbles();
@@ -129,7 +129,7 @@ class Overview {
                 return [0, 100];
             })
             .html((d) => {
-                return this.tooltip_render(d);
+                return this.tooltip_render(d, ref.tiledatapoints);
             });
 
         this.svg.selectAll("g").remove();
@@ -211,7 +211,8 @@ class Overview {
         });
         nodes = nodes.map(function (d) {
             return {
-                r: d.attr.total / 200
+                r: d.attr.total / 200,
+                data: d
             };
         });
         nodes.unshift({r: 200});
@@ -244,15 +245,23 @@ class Overview {
         let circle = this.svg.selectAll("circle")
             .data(nodes.slice(1))
             .enter().append("circle")
-            .attr("r", function(d) {
+            .attr("r", function (d) {
                 return d.r;
             })
-            .style("fill", function(d, i) {
-                if(d !== root) {
+            .style("fill", function (d, i) {
+                if (d !== root) {
                     return color(i % 3);
                 }
             });
 
+        let tipMouseOver = d3.tip().attr('class', 'd3-tip')
+            .direction('s')
+            .offset(function () {
+                return [0, 100];
+            })
+            .html((d) => {
+                return this.tooltip_render(d, ref.bubbledatapoints);
+            });
 
         function ticked() {
             circle
@@ -260,22 +269,37 @@ class Overview {
                     try {
                         return d.x;
                     }
-                    catch (_){
-                        console.log("here");
+                    catch (_) {
                     }
                 })
                 .attr("cy", function (d) {
                     try {
-                    return d.y;
+                        return d.y;
                     }
-                    catch (_){
-                        console.log("here");
+                    catch (_) {
                     }
+                })
+                .on("mouseover", function (d) {
+                    if (!ref.tipWindowOpen) {
+                        tipMouseOver.show(d.data);
+                    }
+                })
+                .on("mouseleave", function (d) {
+                    if (!ref.tipWindowOpen) {
+                        tipMouseOver.hide();
+                    }
+                })
+                .on("click", function (d) {
+                    ref.tipWindowOpen = true;
+                    tipMouseOver.show(d.data);
+                })
+                .on("dblclick", function (d) {
+                    tipMouseOver.hide();
+                    ref.tipWindowOpen = false;
                 });
-                // .on("mouseover", function (d) {
-                //     console.log(d.data);
-                // });
         }
+
+        circle.call(tipMouseOver);
 
         // this.svg.on("mousemove", function() {
         //     let p1 = d3.mouse(this);
@@ -285,6 +309,7 @@ class Overview {
         // });
 
     }
+
     scale(d) {
 
         let domain = [0, 100];
