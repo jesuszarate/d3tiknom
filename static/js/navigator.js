@@ -72,7 +72,7 @@ class Navigator {
                         this.selectedPaths.push(path);
                     }
                 }, this);
-                if(!this.selectedGubbins.includes(selection)) {
+                if(!this.selectedGubbins.includes(preselection)) {
                     this.selectedGubbins.push(preselection);
                 }
             } catch (_) {}
