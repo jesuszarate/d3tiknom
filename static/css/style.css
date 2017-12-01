@@ -185,14 +185,14 @@ polyline {
     fill: #de2d26;
     color: #de2d26;
     font-size: 20px;
-    stroke-width: 25px;
+    stroke-width: 2px;
 }
 
 .successful{
     fill: #3182bd;
     color: #3182bd;
     font-size: 20px;
-    stroke-width: 25px;
+    stroke-width: 2px;
 
 }
 

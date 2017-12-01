@@ -100,11 +100,14 @@ class Overview {
 
     update(type) {
 
-        this.clear();
+
         if (type === "tiles") {
+            this.clearBubbles();
             this.drawTileVis();
         }
         else if (type === "bubble") {
+
+            this.clearTiles();
             this.drawBubbleVis();
         }
     };
@@ -307,9 +310,12 @@ class Overview {
         return (colorScale(((successes / total) * 100)));// - (failures/total)*100) ));
     }
 
-    clear() {
+    clearTiles() {
         this.svg.selectAll("g").remove();
     }
 
+    clearBubbles() {
+        this.svg.selectAll("circle").remove();
+    }
 }
 

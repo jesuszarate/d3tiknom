@@ -11,7 +11,7 @@ d3.json("data/monkit_data.json", function (error, data) {
 
     // try {
         overview = new Overview(data);
-        overview.update("bubble");
+        overview.update("tiles");
     // } catch (_) {}
 
     // let circ = new circleoverview(data);
