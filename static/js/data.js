@@ -9,13 +9,11 @@ d3.json("data/monkit_data.json", function (error, data) {
         let navigator = new Navigator(data);
     } catch (_) {}
 
-    // try {
+    try {
         overview = new Overview(data);
         overview.update("tiles");
-    // } catch (_) {}
+    } catch (_) {}
 
-    // let circ = new circleoverview(data);
-    // circ.update();
     d3.select("#loading-gif").remove();
 });
 

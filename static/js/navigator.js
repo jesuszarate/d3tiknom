@@ -38,6 +38,30 @@ class Navigator {
         this.lastXScrollPosition = 0;
 
         let preselection = getParameterByName("gubbin");
+
+        if(preselection === null) {
+            let searchTerm = getParameterByName("search");
+            for(let d of Object.keys(this.data)){
+                if (d.toLowerCase().includes(searchTerm.toLowerCase())) {
+
+                    let selection = null;
+                    let levels = d.split(".");
+                    levels.forEach(function(_, i) {
+                        if (i < levels.length - 1) {
+                            selection = levels.slice(0, i).join(".");
+                        }
+                    }, this);
+
+                    if(d = Object.keys(this.data)[0]){
+                        preselection = selection;
+                    }
+                    if(!this.selectedGubbins.includes(selection)) {
+                        this.selectedGubbins.push(selection);
+                    }
+                }
+            }
+        }
+
         if (preselection !== null && preselection !== "") {
             try {
                 this.dataTree.nodeFromKey(preselection);
@@ -48,7 +72,9 @@ class Navigator {
                         this.selectedPaths.push(path);
                     }
                 }, this);
-                this.selectedGubbins.push(preselection);
+                if(!this.selectedGubbins.includes(selection)) {
+                    this.selectedGubbins.push(preselection);
+                }
             } catch (_) {}
         }
 
