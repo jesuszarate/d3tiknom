@@ -33,6 +33,14 @@ class Navigator {
 
         this.selectedPaths = [this.dataTree.rootName()];
         this.selectedGubbins = [];
+        this.selectedTargets = {};
+        let ref = this;
+        d3.selectAll(".graph-group")
+            .each(function() {
+                let plotId = "#" + d3.select(this).node().getAttribute("id");
+                ref.selectedTargets[plotId] = [];
+            });
+        this.plotIds = Object.keys(this.selectedTargets);
 
         this.lastYScrollPosition = 0;
         this.lastXScrollPosition = 0;
@@ -83,7 +91,6 @@ class Navigator {
         this.update(this.divNavigator, this.dataTree.tree);
         this.updatePlotSelectors();
 
-        let ref = this;
         d3.select("#plot-clearer").on("click", function() {
             ref.selectedGubbins = [];
             ref.Plots.clearPlots();
@@ -229,6 +236,25 @@ class Navigator {
     }
 
     updatePlotSelectors() {
+        let selectedOptions = {}
+        d3.selectAll(".graph-group")
+            .each(function() {
+                let plotGroup = d3.select(this);
+                let plotId = "#" + plotGroup.node().id;
+                plotGroup.selectAll(".target-selectors")
+                    .selectAll("tr")
+                    .each(function() {
+                        let n = d3.select(this);
+                        if (!selectedOptions.hasOwnProperty(plotId)) {
+                            selectedOptions[plotId] = {};
+                        }
+                        selectedOptions[plotId][n.attr("x-gubbin")] = {
+                            metric: n.select(".metric-target-selector").node().value,
+                            id:     n.select(".id-target-selector").node().value,
+                        };
+                    });
+            });
+
         d3.selectAll(".target-selectors")
             .selectAll("tr")
             .remove();
@@ -237,86 +263,111 @@ class Navigator {
         this.scrollSpots.scrollLeft = this.lastXScrollPosition;
 
         let ref = this;
-        for (let i = 0; i < ref.selectedGubbins.length; i++) {
-            let gub = ref.dataTree.nodeFromKey(ref.selectedGubbins[i]);
-            let metrics = gub["__meta__"].children;
-            let targetGroup = d3.selectAll(".target-selectors")
-                .append("tr")
-                .attr("class", "target-selector-group gubbin-selected")
-                .style("background-color",
-                    ref.colorScale(ref.colorKeys.data[gub.gubbin]))
-                .attr("x-gubbin", gub.gubbin);
+        for (let pi = 0; pi < ref.plotIds.length; pi++) {
+            for (let i = 0; i < ref.selectedGubbins.length; i++) {
+                let gub = ref.dataTree.nodeFromKey(ref.selectedGubbins[i]);
+                let metrics = gub["__meta__"].children;
+                let plotId = ref.plotIds[pi];
+                let preselectedOptions = selectedOptions[plotId] || {};
+                let plotGroup = d3.select(plotId);
+                let targetGroup = plotGroup.selectAll(".target-selectors")
+                    .append("tr")
+                    .attr("class", "target-selector-group gubbin-selected")
+                    .style("background-color",
+                        ref.colorScale(ref.colorKeys.data[gub.gubbin]))
+                    .attr("x-gubbin", gub.gubbin);
 
-            let gubParts = gub.gubbin.split(".");
-            targetGroup.append("td")
-                .attr("class", "gubbin-name")
-                .text(gubParts[gubParts.length - 1])
-                .on("click", function() {
-                    let ele = d3.select(d3.select(this).node().parentElement);
-                    let key = ele.attr("x-gubbin");
-                    ref.clear();
-                    let node = ref.dataTree.nodeFromKey(key);
-                    if (node.hasOwnProperty("gubbin")) {
-                        ref.updateSelectedGubbins(key);
-                    }
-                    ref.updateSelectedPaths(key);
-                    ref.update(ref.divNavigator, ref.dataTree.tree);
-                    if (node.hasOwnProperty("gubbin")) {
-                        ref.updatePlotSelectors();
-                    }
-                });
+                let gubParts = gub.gubbin.split(".");
+                targetGroup.append("td")
+                    .attr("class", "gubbin-name")
+                    .text(gubParts[gubParts.length - 1])
+                    .on("click", function() {
+                        let ele = d3.select(d3.select(this).node().parentElement);
+                        let key = ele.attr("x-gubbin");
+                        ref.clear();
+                        let node = ref.dataTree.nodeFromKey(key);
+                        if (node.hasOwnProperty("gubbin")) {
+                            ref.updateSelectedGubbins(key);
+                        }
+                        ref.updateSelectedPaths(key);
+                        ref.update(ref.divNavigator, ref.dataTree.tree);
+                        if (node.hasOwnProperty("gubbin")) {
+                            ref.updatePlotSelectors();
+                        }
+                    });
 
-            let metricSelect = targetGroup
-                .append("td")
-                .append("select")
-                .attr("class", "metric-target-selector");
-            metricSelect.selectAll("option")
-                .data(metrics)
-                .enter()
-                .append("option")
-                .attr("value", (d) => d)
-                .text((d) => d);
-            metricSelect.select("option")
-                .attr("selected", "selected");
-            metricSelect.on("change", function() { ref.sendTargetToPlots(); });
+                let metricSelect = targetGroup
+                    .append("td")
+                    .append("select")
+                    .attr("class", "metric-target-selector");
+                metricSelect.selectAll("option")
+                    .data(metrics)
+                    .enter()
+                    .append("option")
+                    .attr("value", (d) => d)
+                    .text((d) => d);
 
-            let ids = []
-            for (let j = 0; j < metrics.length; j++) {
-                let met = ref.dataTree.keyFromGubbinMetric(gub, metrics[j]);
-                let gubMet = ref.dataTree.nodeFromKey(met);
-                gubMet["__meta__"].children.forEach(function(d) {
-                    if (!ids.includes(d)) { ids.push(d); }
-                });
+                if (preselectedOptions.hasOwnProperty(gub.gubbin)) {
+                    metricSelect.selectAll("option").each(function() {
+                        let n = d3.select(this);
+                        if (n.node().value === preselectedOptions[gub.gubbin].metric) {
+                            n.attr("selected", "selected");
+                        }
+                    });
+                } else {
+                    metricSelect.select("option").attr("selected", "selected");
+                }
+
+                metricSelect.on("change", function() { ref.sendTargetToPlots(); });
+
+                let ids = []
+                for (let j = 0; j < metrics.length; j++) {
+                    let met = ref.dataTree.keyFromGubbinMetric(gub, metrics[j]);
+                    let gubMet = ref.dataTree.nodeFromKey(met);
+                    gubMet["__meta__"].children.forEach(function(d) {
+                        if (!ids.includes(d)) { ids.push(d); }
+                    });
+                }
+
+                let idSelect = targetGroup
+                    .append("td")
+                    .append("select")
+                    .attr("class", "id-target-selector");
+                idSelect.selectAll("option")
+                    .data(ids)
+                    .enter()
+                    .append("option")
+                    .attr("value", (d) => d)
+                    .text((d) => d.trunc(10));
+
+                if (preselectedOptions.hasOwnProperty(gub.gubbin)) {
+                    idSelect.selectAll("option").each(function() {
+                        let n = d3.select(this);
+                        if (n.node().value === preselectedOptions[gub.gubbin].id) {
+                            n.attr("selected", "selected");
+                        }
+                    });
+                } else {
+                    idSelect.select("option").attr("selected", "selected");
+                }
+
+                idSelect.on("change", function() { ref.sendTargetToPlots(); });
             }
-
-            let idSelect = targetGroup
-                .append("td")
-                .append("select")
-                .attr("class", "id-target-selector");
-            idSelect.selectAll("option")
-                .data(ids)
-                .enter()
-                .append("option")
-                .attr("value", (d) => d)
-                .text((d) => d.trunc(10));
-            idSelect.select("option")
-                .attr("selected", "selected");
-            idSelect.on("change", function() { ref.sendTargetToPlots(); });
         }
 
         this.sendTargetToPlots();
     }
 
     sendTargetToPlots() {
-        let selectedTargets = {};
-        d3.selectAll(".graph-group")
-            .each(function() {
-                let plotId = "#" + d3.select(this).node().getAttribute("id");
-                selectedTargets[plotId] = [];
-            });
-        let plotIds = Object.keys(selectedTargets);
+        this.selectedTargets = {};
+        let ref = this;
 
-        plotIds.forEach(function(plotId) {
+        // TODO(sam): keep track of previously selected metrics and ids so that
+        // the drop downs don't reset whenever a change happens
+        // this.selectedGubbinMetricOptions = []
+        // this.selectedGubbinIdOptions = []
+        this.plotIds.forEach(function(plotId) {
+            ref.selectedTargets[plotId] = [];
             d3.select(plotId).selectAll(".target-selector-group")
                 .each(function() {
                     let d = d3.select(this);
@@ -326,11 +377,11 @@ class Navigator {
                         .node().value;
                     let target = d.node().getAttribute("x-gubbin") + "." +
                         metric + "." + id;
-                    selectedTargets[plotId].push(target);
+                    ref.selectedTargets[plotId].push(target);
                 });
         });
 
         this.Plots.clearPlots();
-        this.Plots.update(selectedTargets);
+        this.Plots.update(this.selectedTargets);
     }
 }
