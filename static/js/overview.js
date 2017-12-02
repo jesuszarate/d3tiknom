@@ -198,16 +198,21 @@ class Overview {
             .attr("height", height);
 
 
-        let label = tile.append("text");
+        let label = tile.append("text")
+            .attr("y", 50)
+            .attr("transform", function (d, i) {
+                return "translate(100)";
+            });
 
         let midX = height / 2;
         let midY = width / 2;
 
         label.append("tspan")
-            .attr("x", midX + 50)
-            .attr("y", midY - 10)
+            .attr("x", 0)
+            // .attr("x", midX + 50)
+            // .attr("y", midY - 10)
             .style("font-size", function () {
-                return (width * height) / 1400;
+                return (width * height) / 3000;
             })
             .text(function (d) {
                 return d["gubbin"];
@@ -226,7 +231,7 @@ class Overview {
         });
         nodes = nodes.map(function (d) {
             return {
-                r: d.attr.total / 200,
+                r: d.attr.total / 80,
                 data: d
             };
         });
