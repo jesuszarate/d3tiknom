@@ -162,6 +162,8 @@ class Overview {
             }).attr("class", function (d) {
                 return "tile";
             })
+            .style("text-align", "center")
+            .style("vertical-align", "center")
             .on("mouseover", function (d) {
                 if (!ref.tipWindowOpen) {
                     tipMouseOver.show(d);
@@ -195,33 +197,44 @@ class Overview {
             .attr("height", height)
             .style("fill", function (d) {
                 return ref.scale(d);
-            })
-            .style("text-align", "center");
-
-
-
-        let label = tile.append("text")
-            .attr("y", 50)
-            .attr("transform", function (d, i) {
-                return "translate(100)";
             });
+
 
         let midX = height / 2;
         let midY = width / 2;
-
-        label.append("tspan")
-            .attr("x", 0)
-            // .attr("x", midX + 50)
-            // .attr("y", midY - 10)
-            .style("font-size", function () {
-                return (width * height) / 3000;
-            })
+        let label = tile.append("text")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("y", midY)
+            .attr("x", midX)
             .text(function (d) {
                 return d["gubbin"];
+            })
+            // .attr("transform", function (d, i) {
+            //     return "translate(100)";
+            // })
+            .style("font-size", function () {
+                return (width * height) / 3000;
             })
             .attr("class", function (d) {
                 return "tilestext";
             });
+
+
+
+        // label.append("tspan")
+        //     // .attr("x", 0)
+        //     // .attr("x", midX + 50)
+        //     // .attr("y", midY - 10)
+        //     .style("font-size", function () {
+        //         return (width * height) / 3000;
+        //     })
+        //     .text(function (d) {
+        //         return d["gubbin"];
+        //     })
+        //     .attr("class", function (d) {
+        //         return "tilestext";
+        //     });
     }
 
     drawBubbleVis() {
