@@ -10,9 +10,7 @@ class Overview {
         this.margin = {top: 100, right: 100, bottom: 200, left: 100};
         let svgBounds = divTiles.node().getBoundingClientRect();
         this.svgWidth = svgBounds.width - this.margin.left - this.margin.right;
-        this.svgHeight = this.svgWidth / 2;
-        // let legendHeight = 700;
-        // let legend = d3.select("#legend").classed("content", true);
+        this.svgHeight = this.svgWidth;
 
         this.padding = 100;
         this.min_padding = 100;
@@ -94,11 +92,6 @@ class Overview {
         text += "</ul>";
 
         if (this.tipWindowOpen) {
-            // text += "<form action=\"linechart.html\" method=\"GET\">" +
-            //     "  <input type=\"hidden\" name=\"gubbin\" value=\"" + tooltip_data.path + "\" />" +
-            //     '<button class="btn btn-primary btn-block">View</button>' +
-            //     "</form>";
-
             text +=
 
                 '<button class="btn btn-primary btn-block dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
@@ -116,7 +109,6 @@ class Overview {
                 '  <button class="dropdown-item btn-block">Plots</button>' +
                 '  </div>' +
                 "</form>";
-
         }
 
         return text;
@@ -259,7 +251,6 @@ class Overview {
                     return d.r;
                 }
                 return d.r + 0.5;
-                // return collide(0);
 
             }).iterations(5))
             .nodes(nodes).on("tick", ticked);
@@ -323,14 +314,6 @@ class Overview {
         }
 
         circle.call(tipMouseOver);
-
-        // this.svg.on("mousemove", function() {
-        //     let p1 = d3.mouse(this);
-        //     root.fx = p1[0];
-        //     root.fy = p1[1];
-        //     force.alphaTarget(0.3).restart();//reheat the simulation
-        // });
-
     }
 
     scale(d) {
