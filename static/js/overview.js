@@ -192,10 +192,12 @@ class Overview {
         let ref = this;
         tile.append("rect")
             .attr("width", width)
+            .attr("height", height)
             .style("fill", function (d) {
                 return ref.scale(d);
             })
-            .attr("height", height);
+            .style("text-align", "center");
+
 
 
         let label = tile.append("text")

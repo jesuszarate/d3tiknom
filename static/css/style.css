@@ -155,7 +155,7 @@ polyline {
 }
 
 .tilestext{
-    text-anchor:middle;
+    /*text-anchor:middle;*/
     /*font-size: 12px;*/
     /*fill: #565656;*/
     fill: white;
