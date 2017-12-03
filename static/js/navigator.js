@@ -315,7 +315,18 @@ class Navigator {
                         }
                     });
                 } else {
-                    metricSelect.select("option").attr("selected", "selected");
+                    let metricSelectionMade = false;
+                    metricSelect.selectAll("option").each(function() {
+                        let n = d3.select(this);
+                        if (n.node().value === "success") {
+                            n.attr("selected", "selected");
+                            metricSelectionMade = true;
+                        }
+                    });
+
+                    if (!metricSelectionMade) {
+                        metricSelect.select("option").attr("selected", "selected");
+                    }
                 }
 
                 metricSelect.on("change", function() { ref.sendTargetToPlots(); });
