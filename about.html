@@ -48,14 +48,63 @@
   <main role="main" class="container about">
     <div class="jumbotron">
       <h1 class="display-3">d3tiknom</h1>
+      <h3>Overview</h3>
       <p class="lead">
-        This is a Data Visualization project for
-        <a href="http://dataviscourse.net/2017/syllabus">CS 6630</a> at the
+        A <a href="https://golang.org">Go</a> library called <a
+        href="https://godoc.org/gopkg.in/spacemonkeygo/monkit.v2">monkit</a>
+        can report a variety of statistics about any codebase that it is
+        integrated with. This can be very useful information when trying to
+        analyze a REST backend service. It provides insights into the number of
+        times endpoints are called, or the average time it takes for the
+        endpoint to respond, as well as if the response was an success or an
+        error. By default, monkit will send a packet of statistics every two
+        minutes to a central <a href="https://graphiteapp.org">graphite</a>
+        collector.
+      </p>
+
+      <p class="lead">
+        This site will visualize the data collected by the central graphite
+        collector. There are a number of pages that behave as follows:
+      </p>
+      <ul>
+        <li>
+          <strong>Overview</strong> displays all of the endpoints from the data
+          set, using color to represent the success-to-error ratio. There is
+          also a "Bubble" view type which uses size to showcase the number of
+          times each endpoint was called in total.
+        </li>
+        <li>
+          <strong>Linechart</strong> displays a way to compare any of the
+          endpoints together on the same linechart. This emphasizes the total
+          number of requests, success, or errors over time. It can also display
+          the sliding average runtime of that endpoint over time, if that data
+          exists in the dataset.
+        </li>
+        <li>
+          <strong>Plots</strong> displays 4 different bar charts side by side
+          for any of the selected endpoints. Each chart can be used to show
+          different metrics from each endpoint all together.
+        </li>
+      </ul>
+      <hr>
+
+      <h3>Required Artifacts</h3>
+      <p>The <a href="#">screencast</a> of this project.</p>
+      <p>The <a href="#">process book</a>.</p>
+      <hr>
+
+      <h3>About</h3>
+      <p>
+        This is a Data Visualization project for <a
+        href="http://dataviscourse.net/2017/syllabus">CS 6630</a> at the
         University of Utah. This project uses a <a
         href="http://getbootstrap.com/docs/4.0/examples/dashboard">dashboard example theme</a>
-        from Bootstrap for the layout. It also utilizes
-        <a href="https://d3js.org">D3</a> to render the visualizations.
+        from Bootstrap for the layout. It also utilizes <a
+        href="https://d3js.org">D3</a> to render the visualizations.
       </p>
+      <hr>
+
+      <h3>Authors</h3>
       <p>
         <a href="https://github.com/samolds">Sam Olds</a>, samolds@yahoo.com,
         u0742533
