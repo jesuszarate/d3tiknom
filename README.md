@@ -53,3 +53,5 @@ curl -u {user} -o monkit_data.json "https://graphite.{server}.com/render/?target
         js/                -    All of our own custom JS
         vendor/            -    Any downloaded third party JS or CSS libs
 ```
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/ZYEL9FXcTmE" frameborder="0" allowfullscreen></iframe>
