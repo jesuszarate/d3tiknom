@@ -54,4 +54,11 @@ curl -u {user} -o monkit_data.json "https://graphite.{server}.com/render/?target
         vendor/            -    Any downloaded third party JS or CSS libs
 ```
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/ZYEL9FXcTmE" frameborder="0" allowfullscreen></iframe>
+### Process Book
+[Process Book](https://github.com/jesuszarate/d3tiknom/blob/master/reports/processbook/Process%20Book.pdf)
+
+### Video
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=ZYEL9FXcTmE
+" target="_blank"><img src="http://img.youtube.com/vi/ZYEL9FXcTmE/0.jpg" 
+alt="d3tiknom Vidoe" width="240" height="180" border="10" /></a>
